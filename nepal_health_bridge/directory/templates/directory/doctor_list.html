@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedCare Health Solution</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #0d4bf1;
+            --secondary-blue: #0a3bb5;
+            --text-dark: #2c3e50;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: #fff;
+            padding: 10px 0;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            border-bottom: 1px solid #eee;
+        }
+
+        .top-bar i {
+            margin-right: 5px;
+            color: var(--text-light);
+        }
+
+        .social-icons a {
+            color: var(--text-light);
+            margin-left: 15px;
+            transition: color 0.2s;
+        }
+
+        .social-icons a:hover {
+            color: var(--primary-blue);
+        }
+
+        /* Navbar */
+        .navbar {
+            padding: 1.5rem 0;
+            background: #fff;
+        }
+
+        .navbar-brand {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            background: var(--primary-blue);
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            /* Rounded square ish */
+            border-top-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: #444 !important;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            margin: 0 10px;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary-blue) !important;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            background: #f4f9ff;
+            /* Fallback */
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-bg-overlay {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 50%;
+            background: url('https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            /* Subtle */
+            clip-path: polygon(20% 0, 100% 0, 100% 100%, 0% 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .btn-hero-primary {
+            background-color: var(--primary-blue);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 0;
+            /* Sharp edges as per image */
+            font-weight: 600;
+            text-transform: capitalize;
+            border: 2px solid var(--primary-blue);
+            transition: all 0.3s;
+        }
+
+        .btn-hero-primary:hover {
+            background-color: var(--secondary-blue);
+            border-color: var(--secondary-blue);
+            color: #fff;
+        }
+
+        .btn-hero-outline {
+            background-color: transparent;
+            color: #555;
+            padding: 12px 30px;
+            border-radius: 0;
+            font-weight: 600;
+            border: 2px solid #ddd;
+            margin-left: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn-hero-outline:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            background: #fff;
+        }
+
+        /* Hero Image (Doctor) */
+        .hero-img-container {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .hero-doctor-img {
+            max-height: 85vh;
+            width: auto;
+            object-fit: contain;
+            /* Drop shadow for depth */
+            filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.15));
+        }
+
+        /* Info Cards (Bottom of Hero) */
+        .info-cards-section {
+            background: var(--primary-blue);
+            padding: 40px 0;
+            margin-top: -80px;
+            /* Overlap effect if achievable, else standard */
+            position: relative;
+            z-index: 10;
+        }
+
+        .info-card {
+            background: transparent;
+            color: #fff;
+            border: none;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .info-card-icon {
+            font-size: 2.5rem;
+            margin-right: 20px;
+            opacity: 0.9;
+        }
+
+        .info-card h4 {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        /* Doctor List Section */
+        .doctors-section {
+            padding: 80px 0;
+            background-color: #f9f9f9;
+        }
+
+        .section-header {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgb(34, 34, 34);
+            margin-bottom: 1rem;
+        }
+
+        .doctor-card {
+            background: #fff;
+            border-radius: 0;
+            /* Square aesthetics */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border: none;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .doctor-img-wrapper {
+            height: 280px;
+            background: #eef2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doctor-avatar-placeholder {
+            font-size: 5rem;
+            color: #cbd5e1;
+        }
+
+        .card-body {
+            padding: 25px;
+            text-align: center;
+        }
+
+        .doctor-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .doctor-specialty {
+            font-size: 0.9rem;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .hospital-info {
+            font-size: 0.9rem;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .btn-book-sm {
+            margin-top: 15px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: 0.3s;
+        }
+
+        .btn-book-sm:hover {
+            background: var(--secondary-blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .hero-doctor-img {
+                display: none;
+                /* Hide on mobile/tablet if needed, or adjust */
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .info-cards-section {
+                padding: 20px 0;
+            }
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <div class="top-bar d-none d-lg-block">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="contact-info d-flex">
+                <div class="me-4"><i class="bi bi-envelope"></i> medical@example.com</div>
+                <div><i class="bi bi-geo-alt"></i> Find our Location</div>
+            </div>
+            <div class="social-icons">
+                <a href="#"><i class="bi bi-facebook"></i></a>
+                <a href="#"><i class="bi bi-twitter"></i></a>
+                <a href="#"><i class="bi bi-linkedin"></i></a>
+                <a href="#"><i class="bi bi-vimeo"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <div class="logo-icon"><i class="bi bi-plus-lg"></i></div>
+                <div>
+                    MEDCARE
+                    <span
+                        style="display: block; font-size: 0.7rem; font-weight: 400; color: #666; letter-spacing: 2px;">HEALTH
+                        SOLUTION</span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Department</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">Doctors</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item ms-lg-3">
+                        <a href="#" class="btn btn-primary rounded-pill px-4 py-2"
+                            style="background: var(--primary-blue); border: none;">Search <i
+                                class="bi bi-search ms-1"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1>Making Health Care Better Together</h1>
+                    <p>Also you dry creeping beast multiply fourth abundantly our itsel signs bring our. Won form
+                        living. Whose dry you seasons divide given gathering.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <button class="btn btn-hero-primary">Make An Appointment</button>
+                        <button class="btn btn-hero-outline">View Department</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 h-100 text-end d-none d-lg-block">
+                    <!-- Using a reliable high-quality placeholder that matches the description -->
+                    <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=1964&auto=format&fit=crop"
+                        alt="Doctor" class="hero-doctor-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info Strip -->
+    <section class="bg-primary py-5 text-white">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-heart-pulse fs-1 me-3"></i>
+                        <div>
+                            <h4 class="mb-1">Primary Care</h4>
+                            <p class="mb-0 opacity-75">Comprehensive health services.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-clipboard-pulse fs-1 me-3"></i>
+                        <div>
+                            <h4 class="mb-1">Emergency Cases</h4>
+                            <p class="mb-0 opacity-75">24/7 Urgent care available.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-calendar-check fs-1 me-3"></i>
+                        <div>
+                            <h4 class="mb-1">Online Appointment</h4>
+                            <p class="mb-0 opacity-75">Book your visit easily.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Doctors Listing -->
+    <section class="doctors-section">
+        <div class="container">
+            <div class="text-center section-header">
+                <h2 class="section-title">Our Qualified Doctors</h2>
+                <p class="text-muted">Meet our team of specialized healthcare professionals.</p>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for doctor in doctors %}
+                <div class="col">
+                    <div class="doctor-card h-100">
+                        <div class="doctor-img-wrapper">
+                            <!-- In a real app, this would be {{ doctor.image.url }} -->
+                            <i class="bi bi-person-fill doctor-avatar-placeholder"></i>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="doctor-name">{{ doctor.name }}</h5>
+                            <span class="doctor-specialty">{{ doctor.specialty }}</span>
+                            <div class="hospital-info">
+                                <i class="bi bi-hospital me-2"></i> {{ doctor.hospital.name }}
+                            </div>
+                            <button class="btn btn-book-sm">Book Visit</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

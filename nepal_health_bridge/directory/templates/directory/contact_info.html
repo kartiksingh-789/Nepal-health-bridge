@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Information - Nepal Health Bridge</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding-bottom: 50px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            padding: 40px 0 60px;
+            margin-bottom: -30px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .btn-back {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 12px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.2);
+        }
+
+        .btn-continue {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-continue:hover {
+            background-color: var(--primary-hover);
+            color: white;
+            box-shadow: 0 10px 20px rgba(0, 86, 179, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #dee2e6;
+        }
+
+        .progress-dot.active {
+            background-color: var(--primary-color);
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+
+    <div class="page-header">
+        <div class="container">
+            <a href="{% url 'medical_history' %}" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Back to Medical History
+            </a>
+            <h2 class="fw-bold mb-0">Contact Information</h2>
+            <p class="opacity-75">Please confirm your current contact details</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+
+                <div class="form-card">
+                    <!-- Progress Dots -->
+                    <div class="progress-indicator">
+                        <div class="progress-dot"></div>
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot"></div>
+                    </div>
+
+                    <form method="POST" action="{% url 'contact_info' %}">
+                        {% csrf_token %}
+                        <!-- Appointment Date -->
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fa-regular fa-calendar text-info me-2"></i>Preferred
+                                Appointment Date</label>
+                            <input type="date" name="appt_date" class="form-control" required>
+                        </div>
+
+                        <!-- Appointment Time -->
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fa-regular fa-clock text-warning me-2"></i>Preferred
+                                Appointment Time</label>
+                            <input type="time" name="appt_time" class="form-control" required>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="mb-4">
+                            <label class="form-label"><i class="fa-solid fa-phone text-primary me-2"></i>Primary Phone
+                                Number</label>
+                            <input type="tel" name="phone" class="form-control" placeholder="+977"
+                                value="+977 9800000000" required>
+                        </div>
+
+                        <!-- Alternate Contact -->
+                        <div class="mb-4">
+                            <label class="form-label"><i
+                                    class="fa-solid fa-square-phone text-secondary me-2"></i>Alternate Contact
+                                (Optional)</label>
+                            <input type="tel" name="alt_phone" class="form-control"
+                                placeholder="Relative/Emergency Contact Phone">
+                        </div>
+
+                        <!-- Address -->
+                        <div class="mb-5">
+                            <label class="form-label"><i
+                                    class="fa-solid fa-map-location-dot text-success me-2"></i>Current Address</label>
+                            <textarea name="address" class="form-control" rows="3"
+                                placeholder="Enter your full residential address..."
+                                required>Baneshwor, Kathmandu</textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn-continue">
+                            Proceed to Payment <i class="fa-solid fa-wallet"></i>
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,516 @@
+{% extends 'base.html' %}
+{% block title %}Settings - HealthMeds{% endblock %}
+{% block content %}
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Settings</h1>
+        <p class="text-gray-500 text-sm mt-1">Manage your account preferences</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="bg-teal-600 px-4 py-4">
+                    <p class="text-white font-semibold text-sm">Settings Menu</p>
+                </div>
+                <nav class="py-2">
+                    <button onclick="showSection('notifications')" id="nav-notifications"
+                            class="settings-nav w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-semibold text-teal-600 bg-teal-50 border-l-4 border-teal-600 transition">
+                        <i class="fas fa-bell w-4"></i> Notifications
+                    </button>
+                    <button onclick="showSection('privacy')" id="nav-privacy"
+                            class="settings-nav w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 border-l-4 border-transparent transition">
+                        <i class="fas fa-shield-alt w-4"></i> Privacy
+                    </button>
+                    <button onclick="showSection('address')" id="nav-address"
+                            class="settings-nav w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 border-l-4 border-transparent transition">
+                        <i class="fas fa-map-marker-alt w-4"></i> Addresses
+                        {% if addresses %}
+                        <span class="ml-auto bg-teal-100 text-teal-700 text-xs px-2 py-0.5 rounded-full font-semibold">{{ addresses|length }}</span>
+                        {% endif %}
+                    </button>
+                    <button onclick="showSection('danger')" id="nav-danger"
+                            class="settings-nav w-full text-left flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 border-l-4 border-transparent transition">
+                        <i class="fas fa-exclamation-triangle w-4"></i> Danger Zone
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Quick Info Card -->
+            <div class="bg-white rounded-xl shadow-md p-4 mt-4">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-teal-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-800">{{ user.get_full_name|default:"User" }}</p>
+                        <p class="text-xs text-gray-500">{{ user.mobile }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'profile' %}" class="block text-center text-xs text-teal-600 font-semibold hover:underline">
+                    Edit Profile →
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lg:col-span-3 space-y-6">
+
+            <!-- ── Notifications Section ── -->
+            <div id="section-notifications" class="settings-section">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 pb-3 border-b">
+                        <i class="fas fa-bell text-teal-500 mr-2"></i>Notification Preferences
+                    </h3>
+                    <div class="space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Order Updates</p>
+                                <p class="text-xs text-gray-500">Get notified about your order status</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="notif-orders" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-teal-600 peer-focus:ring-2 peer-focus:ring-teal-300 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Offers & Promotions</p>
+                                <p class="text-xs text-gray-500">Receive discounts and special offers</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="notif-offers" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-teal-600 peer-focus:ring-2 peer-focus:ring-teal-300 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Prescription Reminders</p>
+                                <p class="text-xs text-gray-500">Remind me to refill my prescriptions</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="notif-rx" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-teal-600 peer-focus:ring-2 peer-focus:ring-teal-300 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">SMS Notifications</p>
+                                <p class="text-xs text-gray-500">Receive updates via SMS on your mobile</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="notif-sms" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-teal-600 peer-focus:ring-2 peer-focus:ring-teal-300 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="saveNotifications()"
+                            class="mt-6 bg-teal-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
+                        <i class="fas fa-save mr-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Privacy Section ── -->
+            <div id="section-privacy" class="settings-section hidden">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-6 pb-3 border-b">
+                        <i class="fas fa-shield-alt text-teal-500 mr-2"></i>Privacy Settings
+                    </h3>
+                    <div class="space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Share Order History</p>
+                                <p class="text-xs text-gray-500">Allow us to use your order history for recommendations</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-teal-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Personalised Ads</p>
+                                <p class="text-xs text-gray-500">Show ads based on your browsing activity</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-teal-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Two-Factor Authentication</p>
+                                <p class="text-xs text-gray-500">Extra OTP verification on every login</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-teal-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <button onclick="showToast('Privacy settings saved!', 'success')"
+                            class="mt-6 bg-teal-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
+                        <i class="fas fa-save mr-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Address Section ── -->
+            <div id="section-address" class="settings-section hidden">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between mb-6 pb-3 border-b">
+                        <h3 class="text-lg font-bold text-gray-800">
+                            <i class="fas fa-map-marker-alt text-teal-500 mr-2"></i>Saved Addresses
+                        </h3>
+                        <button onclick="openAddressModal()"
+                                class="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition">
+                            <i class="fas fa-plus mr-1"></i>Add New
+                        </button>
+                    </div>
+
+                    <!-- Address List -->
+                    <div class="space-y-4" id="address-list">
+                        {% for addr in addresses %}
+                        <div class="border {% if addr.is_default %}border-teal-300 bg-teal-50{% else %}border-gray-200{% endif %} rounded-lg p-4 relative"
+                             id="addr-card-{{ addr.id }}">
+                            {% if addr.is_default %}
+                            <span class="absolute top-3 right-3 bg-teal-600 text-white text-xs px-2 py-1 rounded">Default</span>
+                            {% endif %}
+                            <p class="text-sm font-bold text-gray-800 mb-1">
+                                <i class="fas {% if addr.address_type == 'home' %}fa-home{% elif addr.address_type == 'office' %}fa-briefcase{% else %}fa-map-marker-alt{% endif %} text-teal-500 mr-2"></i>
+                                {{ addr.address_type|capfirst }}
+                            </p>
+                            <p class="text-sm text-gray-600">{{ addr.full_name }}, {{ addr.address_line }}</p>
+                            <p class="text-sm text-gray-600">{{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}</p>
+                            <p class="text-sm text-gray-600">{{ addr.phone }}</p>
+                            <div class="flex gap-4 mt-3">
+                                <button onclick="deleteAddress({{ addr.id }})"
+                                        class="text-red-500 text-xs font-semibold hover:underline">
+                                    <i class="fas fa-trash mr-1"></i>Delete
+                                </button>
+                                {% if not addr.is_default %}
+                                <button onclick="setDefaultAddress({{ addr.id }})"
+                                        class="text-teal-600 text-xs font-semibold hover:underline">
+                                    <i class="fas fa-check mr-1"></i>Set as Default
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div id="no-address-msg" class="text-center py-8 text-gray-400">
+                            <i class="fas fa-map-marker-alt text-4xl mb-3 block"></i>
+                            <p class="text-sm">No addresses saved yet.</p>
+                            <button onclick="openAddressModal()" class="mt-3 text-teal-600 text-sm font-semibold hover:underline">
+                                + Add your first address
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Danger Zone Section ── -->
+            <div id="section-danger" class="settings-section hidden">
+                <div class="bg-white rounded-xl shadow-md p-6 border border-red-200">
+                    <h3 class="text-lg font-bold text-red-600 mb-6 pb-3 border-b border-red-100">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Danger Zone
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Logout</p>
+                                <p class="text-xs text-gray-500">Sign out from your current session.</p>
+                            </div>
+                            <a href="{% url 'logout' %}"
+                               class="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-600 transition">
+                                Logout
+                            </a>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-100">
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">Delete Account</p>
+                                <p class="text-xs text-gray-500">Permanently delete your account and all data. This cannot be undone.</p>
+                            </div>
+                            <button onclick="confirmDeleteAccount()"
+                                    class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ── Add Address Modal ── -->
+<div id="address-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div class="bg-teal-600 px-6 py-4 flex items-center justify-between">
+            <h3 class="text-white font-bold"><i class="fas fa-map-marker-alt mr-2"></i>Add New Address</h3>
+            <button onclick="closeAddressModal()" class="text-white hover:text-teal-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="addr-full-name" placeholder="Full Name *"
+                       class="col-span-2 w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <input type="tel" id="addr-phone" placeholder="Phone Number *"
+                       class="col-span-2 w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <input type="text" id="addr-line" placeholder="Address Line *"
+                       class="col-span-2 w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <input type="text" id="addr-city" placeholder="City *"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <input type="text" id="addr-state" placeholder="State *"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <input type="text" id="addr-pincode" placeholder="Pincode *"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                <select id="addr-type"
+                        class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:outline-none text-gray-600">
+                    <option value="home">🏠 Home</option>
+                    <option value="office">💼 Office</option>
+                    <option value="other">📍 Other</option>
+                </select>
+            </div>
+            <p id="addr-error" class="text-red-500 text-xs hidden"></p>
+        </div>
+        <div class="px-6 pb-6 flex gap-3">
+            <button onclick="closeAddressModal()"
+                    class="flex-1 border border-gray-300 text-gray-600 py-2 rounded-lg font-semibold hover:bg-gray-50 transition text-sm">
+                Cancel
+            </button>
+            <button onclick="submitAddress()" id="addr-submit-btn"
+                    class="flex-1 bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
+                Save Address
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="settings-toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-lg shadow-lg hidden items-center gap-3 z-50 bg-teal-600 text-white">
+    <i id="settings-toast-icon" class="fas fa-check-circle text-lg"></i>
+    <span id="settings-toast-msg">Settings saved!</span>
+</div>
+
+<script>
+// ── CSRF ────────────────────────────────────────────────────────────
+function getCookie(name) {
+    let v = null;
+    document.cookie.split(';').forEach(c => {
+        const [k, val] = c.trim().split('=');
+        if (k === name) v = decodeURIComponent(val);
+    });
+    return v;
+}
+
+// ── Sidebar Navigation ──────────────────────────────────────────────
+function showSection(section) {
+    document.querySelectorAll('.settings-section').forEach(s => s.classList.add('hidden'));
+    document.querySelectorAll('.settings-nav').forEach(btn => {
+        btn.classList.remove('text-teal-600', 'bg-teal-50', 'border-teal-600', 'font-semibold');
+        btn.classList.add('text-gray-600', 'border-transparent', 'font-medium');
+    });
+    document.getElementById('section-' + section).classList.remove('hidden');
+    const activeNav = document.getElementById('nav-' + section);
+    activeNav.classList.add('text-teal-600', 'bg-teal-50', 'border-teal-600', 'font-semibold');
+    activeNav.classList.remove('text-gray-600', 'border-transparent', 'font-medium');
+}
+
+// ── Notification Save (UI only — extend with AJAX if you add DB fields) ──
+function saveNotifications() {
+    showToast('Notification settings saved!', 'success');
+}
+
+// ── Address Modal ───────────────────────────────────────────────────
+function openAddressModal() {
+    document.getElementById('address-modal').classList.remove('hidden');
+    document.getElementById('address-modal').classList.add('flex');
+}
+function closeAddressModal() {
+    document.getElementById('address-modal').classList.add('hidden');
+    document.getElementById('address-modal').classList.remove('flex');
+    // Clear fields
+    ['addr-full-name','addr-phone','addr-line','addr-city','addr-state','addr-pincode'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('addr-type').value = 'home';
+    document.getElementById('addr-error').classList.add('hidden');
+    document.getElementById('addr-submit-btn').textContent = 'Save Address';
+}
+
+// ── Submit New Address → DB ─────────────────────────────────────────
+async function submitAddress() {
+    const full_name    = document.getElementById('addr-full-name').value.trim();
+    const phone        = document.getElementById('addr-phone').value.trim();
+    const address_line = document.getElementById('addr-line').value.trim();
+    const city         = document.getElementById('addr-city').value.trim();
+    const state        = document.getElementById('addr-state').value.trim();
+    const pincode      = document.getElementById('addr-pincode').value.trim();
+    const address_type = document.getElementById('addr-type').value;
+    const errEl        = document.getElementById('addr-error');
+
+    if (!full_name || !phone || !address_line || !city || !state || !pincode) {
+        errEl.textContent = 'Please fill in all required fields.';
+        errEl.classList.remove('hidden');
+        return;
+    }
+    errEl.classList.add('hidden');
+    document.getElementById('addr-submit-btn').textContent = 'Saving...';
+
+    try {
+        const res  = await fetch('{% url "add_address" %}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ full_name, phone, address_line, city, state, pincode, address_type })
+        });
+        const data = await res.json();
+
+        if (data.status === 'ok') {
+            const a       = data.address;
+            const isFirst = document.querySelectorAll('#address-list [id^="addr-card-"]').length === 0;
+
+            // Remove "no addresses" message if present
+            const noMsg = document.getElementById('no-address-msg');
+            if (noMsg) noMsg.remove();
+
+            // Build card HTML
+            const icon = a.address_type === 'home' ? 'fa-home' : a.address_type === 'office' ? 'fa-briefcase' : 'fa-map-marker-alt';
+            const card = document.createElement('div');
+            card.id        = `addr-card-${a.id}`;
+            card.className = `border ${a.is_default ? 'border-teal-300 bg-teal-50' : 'border-gray-200'} rounded-lg p-4 relative`;
+            card.innerHTML = `
+                ${a.is_default ? '<span class="absolute top-3 right-3 bg-teal-600 text-white text-xs px-2 py-1 rounded">Default</span>' : ''}
+                <p class="text-sm font-bold text-gray-800 mb-1">
+                    <i class="fas ${icon} text-teal-500 mr-2"></i>${a.address_type.charAt(0).toUpperCase() + a.address_type.slice(1)}
+                </p>
+                <p class="text-sm text-gray-600">${a.full_name}, ${a.address_line}</p>
+                <p class="text-sm text-gray-600">${a.city}, ${a.state} - ${a.pincode}</p>
+                <p class="text-sm text-gray-600">${a.phone}</p>
+                <div class="flex gap-4 mt-3">
+                    <button onclick="deleteAddress(${a.id})" class="text-red-500 text-xs font-semibold hover:underline">
+                        <i class="fas fa-trash mr-1"></i>Delete
+                    </button>
+                    ${!a.is_default ? `<button onclick="setDefaultAddress(${a.id})" class="text-teal-600 text-xs font-semibold hover:underline">
+                        <i class="fas fa-check mr-1"></i>Set as Default
+                    </button>` : ''}
+                </div>`;
+
+            document.getElementById('address-list').appendChild(card);
+            closeAddressModal();
+            showToast('Address saved successfully!', 'success');
+
+            // Update badge count in sidebar
+            const badge = document.querySelector('#nav-address span');
+            const count = document.querySelectorAll('#address-list [id^="addr-card-"]').length;
+            if (badge) badge.textContent = count;
+        } else {
+            errEl.textContent = data.message || 'Failed to save address.';
+            errEl.classList.remove('hidden');
+            document.getElementById('addr-submit-btn').textContent = 'Save Address';
+        }
+    } catch {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.classList.remove('hidden');
+        document.getElementById('addr-submit-btn').textContent = 'Save Address';
+    }
+}
+
+// ── Delete Address → DB ─────────────────────────────────────────────
+async function deleteAddress(addressId) {
+    if (!confirm('Delete this address?')) return;
+    try {
+        const res  = await fetch(`/settings/address/${addressId}/delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            const card = document.getElementById(`addr-card-${addressId}`);
+            card.style.transition = 'opacity 0.3s';
+            card.style.opacity    = '0';
+            setTimeout(() => {
+                card.remove();
+                // Show empty state if no addresses left
+                const remaining = document.querySelectorAll('#address-list [id^="addr-card-"]').length;
+                if (remaining === 0) {
+                    document.getElementById('address-list').innerHTML = `
+                        <div id="no-address-msg" class="text-center py-8 text-gray-400">
+                            <i class="fas fa-map-marker-alt text-4xl mb-3 block"></i>
+                            <p class="text-sm">No addresses saved yet.</p>
+                            <button onclick="openAddressModal()" class="mt-3 text-teal-600 text-sm font-semibold hover:underline">+ Add your first address</button>
+                        </div>`;
+                }
+            }, 300);
+            showToast('Address deleted', 'success');
+        }
+    } catch {
+        showToast('Failed to delete address', 'error');
+    }
+}
+
+// ── Set Default Address → DB ────────────────────────────────────────
+async function setDefaultAddress(addressId) {
+    try {
+        const res  = await fetch(`/settings/address/${addressId}/default/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            // Reload the address section to reflect new default
+            showToast('Default address updated!', 'success');
+            setTimeout(() => location.reload(), 1000);
+        }
+    } catch {
+        showToast('Failed to update default', 'error');
+    }
+}
+
+// ── Delete Account → DB ─────────────────────────────────────────────
+async function confirmDeleteAccount() {
+    if (!confirm('⚠️ This will permanently delete your account and all data. Are you sure?')) return;
+    if (!confirm('Last chance — this CANNOT be undone. Continue?')) return;
+    try {
+        const res  = await fetch('{% url "delete_account" %}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await res.json();
+        if (data.status === 'ok') {
+            showToast('Account deleted. Goodbye!', 'success');
+            setTimeout(() => window.location.href = '{% url "login" %}', 1500);
+        }
+    } catch {
+        showToast('Failed to delete account', 'error');
+    }
+}
+
+// ── Toast ───────────────────────────────────────────────────────────
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('settings-toast');
+    const icon  = document.getElementById('settings-toast-icon');
+    document.getElementById('settings-toast-msg').textContent = message;
+    toast.className = `fixed bottom-6 right-6 px-5 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 text-white ${type === 'error' ? 'bg-red-500' : 'bg-teal-600'}`;
+    icon.className  = `fas ${type === 'error' ? 'fa-times-circle' : 'fa-check-circle'} text-lg`;
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+// ── Close modal on backdrop click ──────────────────────────────────
+document.getElementById('address-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAddressModal();
+});
+
+// ── Open address tab if URL hash is #address ───────────────────────
+if (window.location.hash === '#address') showSection('address');
+</script>
+
+{% endblock %}

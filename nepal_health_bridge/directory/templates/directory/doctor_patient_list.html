@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Patients - Dr. Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-bg: #1c2833;
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+            --border-color: #e9ecef;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        #sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand i {
+            font-size: 2rem;
+            color: #4db8ff;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-brand h5 {
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .nav-components {
+            padding: 20px 0;
+        }
+
+        .nav-components li a {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-components li a:hover,
+        .nav-components li.active a {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: #4db8ff;
+        }
+
+        .logout-link {
+            color: #ff6b6b !important;
+        }
+
+        #content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .doctor-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .doctor-profile i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .card-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table {
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            color: #6c757d;
+            font-weight: 600;
+            border-bottom-width: 1px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+
+        .table tbody td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f2f5;
+            font-size: 0.95rem;
+        }
+
+        .patient-avatar-sm {
+            width: 42px;
+            height: 42px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .badge-upcoming {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+
+        .badge-waiting {
+            background-color: #fde68a;
+            color: #92400e;
+        }
+
+        .badge-completed {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-cancelled {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-view {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-view:hover {
+            background: var(--primary-hover);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <!-- ── SIDEBAR ── -->
+        <nav id="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-stethoscope"></i>
+                <h5>Dr. {{ doctor.full_name }}</h5>
+                <div class="mt-2">
+                    <span class="badge bg-light text-dark rounded-pill">{{ doctor.specialty }}</span>
+                    <span class="badge bg-light text-dark rounded-pill ms-1">{{ doctor.hospital.name }}</span>
+                </div>
+            </div>
+            <ul class="list-unstyled nav-components">
+                <li>
+                    <a href="{% url 'doctor_dashboard' %}"><i class="fa-solid fa-calendar-day"></i> Today's Appointments</a>
+                </li>
+                <li>
+                    <a href="{% url 'doctor_schedule' %}"><i class="fa-regular fa-calendar-days"></i> My Schedule</a>
+                </li>
+                <li class="{% if mode == 'patient_list' %}active{% endif %}">
+                    <a href="{% url 'doctor_patient_list' %}"><i class="fa-solid fa-users"></i> Patient List</a>
+                </li>
+                <li>
+                    <a href="{% url 'doctor_profile' %}"><i class="fa-solid fa-user-doctor"></i> My Profile</a>
+                </li>
+                <li class="{% if mode == 'write_prescription' %}active{% endif %}">
+                    <a href="{% url 'doctor_write_prescription_list' %}"><i class="fa-solid fa-file-prescription"></i> Write Prescription</a>
+                </li>
+                <li style="margin-top: 40px;">
+                    <a href="{% url 'doctor_logout' %}" onclick="handleLogout(event, this.href)" class="logout-link">
+                        <i class="fa-solid fa-power-off"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ── MAIN CONTENT ── -->
+        <div id="content">
+            <div class="top-header">
+                <div>
+                    <h2 class="fw-bold mb-0">{% if mode == 'write_prescription' %}Write Prescription{% else %}My Patients{% endif %}</h2>
+                    <p class="text-muted">{% if mode == 'write_prescription' %}Select a patient to write a prescription.{% else %}All patients who have had appointments with you.{% endif %}</p>
+                </div>
+                <div class="doctor-profile">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span>Dr. {{ doctor.full_name }}</span>
+                </div>
+            </div>
+
+            <!-- ✅ Summary Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <div class="summary-icon bg-primary bg-opacity-10">
+                            <i class="fa-solid fa-users text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">{{ total_patients }}</div>
+                            <div class="text-muted small">Total Patients</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <div class="summary-icon bg-success bg-opacity-10">
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">{{ completed_count }}</div>
+                            <div class="text-muted small">Completed</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <div class="summary-icon bg-warning bg-opacity-10">
+                            <i class="fa-solid fa-clock text-warning"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">{{ waiting_count }}</div>
+                            <div class="text-muted small">Waiting</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <div class="summary-icon bg-info bg-opacity-10">
+                            <i class="fa-solid fa-calendar-days text-info"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">{{ upcoming_count }}</div>
+                            <div class="text-muted small">Upcoming</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ Patient List Table -->
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <h3 class="card-title">
+                        <i class="fa-solid fa-users text-primary"></i> {% if mode == 'write_prescription' %}Select Patient{% else %}Patient List{% endif %}
+                    </h3>
+
+                    <!-- Search -->
+                    <form method="GET" action="{% if mode == 'write_prescription' %}{% url 'doctor_write_prescription_list' %}{% else %}{% url 'doctor_patient_list' %}{% endif %}" class="d-flex gap-2">
+                        <input type="text" class="form-control" name="search" value="{{ search|default:'' }}"
+                            placeholder="Search by patient name..." style="max-width: 250px;">
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-search"></i>
+                        </button>
+                        {% if search %}
+                        <a href="{% if mode == 'write_prescription' %}{% url 'doctor_write_prescription_list' %}{% else %}{% url 'doctor_patient_list' %}{% endif %}" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-xmark"></i>
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date</th>
+                                <th>Reason</th>
+                                <th>Blood Group</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                            <tr>
+                                <!-- ✅ Patient avatar with initials -->
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="patient-avatar-sm">
+                                            {{ appointment.patient.full_name|first|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ appointment.patient.full_name }}</div>
+                                            <div class="text-muted small">
+                                                {{ appointment.patient.gender }} ·
+                                                {{ appointment.patient.date_of_birth|date:"Y" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- ✅ appointment_date -->
+                                <td>{{ appointment.appointment_date }}</td>
+
+                                <!-- ✅ reason_for_visit -->
+                                <td>{{ appointment.reason_for_visit|default:"—" }}</td>
+
+                                <!-- ✅ patient blood group -->
+                                <td>
+                                    <span class="badge bg-danger">
+                                        {{ appointment.patient.blood_group|default:"—" }}
+                                    </span>
+                                </td>
+
+                                <!-- ✅ patient phone -->
+                                <td>{{ appointment.patient.primary_phone|default:"—" }}</td>
+
+                                <!-- ✅ status badge -->
+                                <td>
+                                    <span class="badge badge-{{ appointment.status }} px-3 py-2 rounded-pill">
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </td>
+
+                                <!-- ✅ Write prescription link -->
+                                <td>
+                                    <a href="{% url 'prescription_page' %}?appointment_id={{ appointment.pk }}"
+                                        class="btn-view">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i> Prescribe
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="fa-solid fa-users mb-3" style="font-size: 2.5rem; opacity: 0.4;"></i>
+                                    <p class="mb-0">No patients found.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="snackbar"><i class="fa-solid fa-circle-check"></i> <span>Logout Successful!</span></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function handleLogout(e, url) {
+            e.preventDefault();
+            document.getElementById("snackbar").className = "show";
+            setTimeout(function () { window.location.href = url; }, 1200);
+        }
+    </script>
+</body>
+
+</html>

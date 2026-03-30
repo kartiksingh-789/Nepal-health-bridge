@@ -1,0 +1,493 @@
+{% extends 'base.html' %}
+{% block title %}Checkout - HealthMeds{% endblock %}
+{% block content %}
+
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+
+    <!-- Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Checkout</h1>
+        <p class="text-gray-500 text-sm mt-1">Complete your order</p>
+    </div>
+
+    {% if not cart or cart.item_count == 0 %}
+    <!-- Empty Cart -->
+    <div class="text-center py-20">
+        <i class="fas fa-shopping-cart text-gray-300 text-6xl mb-4"></i>
+        <h3 class="text-xl font-bold text-gray-500 mb-2">Your cart is empty</h3>
+        <p class="text-gray-400 text-sm mb-6">Add some products before checking out.</p>
+        <a href="{% url 'products' %}" class="bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
+            <i class="fas fa-shopping-bag mr-2"></i>Shop Now
+        </a>
+    </div>
+
+    {% else %}
+    <form method="POST" id="checkout-form">
+        {% csrf_token %}
+        <input type="hidden" name="payment_method" id="payment_method_input" value="esewa">
+        <input type="hidden" name="coupon_code" id="coupon_code_input" value="">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- LEFT: Address + Payment -->
+            <div class="lg:col-span-2 space-y-6">
+
+                <!-- ── Delivery Address ── -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-map-marker-alt text-teal-500 mr-2"></i>Delivery Address
+                    </h2>
+
+                    {% if addresses %}
+                        <div class="space-y-3" id="address-list">
+                            {% for address in addresses %}
+                            <label class="address-card flex items-start gap-4 p-4 border-2 rounded-xl cursor-pointer transition-all
+                                          {% if forloop.first %}border-teal-500 bg-teal-50{% else %}border-gray-200 hover:border-teal-300{% endif %}">
+                                <input type="radio" name="address_id" value="{{ address.id }}"
+                                       {% if forloop.first %}checked{% endif %}
+                                       class="mt-1 accent-teal-600">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-semibold text-gray-800 text-sm">{{ address.full_name }}</span>
+                                        <span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full capitalize">{{ address.address_type }}</span>
+                                        {% if address.is_default %}
+                                        <span class="px-2 py-0.5 bg-teal-100 text-teal-600 text-xs rounded-full">Default</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-sm text-gray-600">{{ address.address_line }}, {{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+                                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i>{{ address.phone }}</p>
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Add New Address Link -->
+                        <a href="{% url 'settings' %}" class="mt-4 flex items-center gap-2 text-teal-600 text-sm font-semibold hover:underline">
+                            <i class="fas fa-plus-circle"></i> Add New Address
+                        </a>
+
+                    {% else %}
+                        <!-- No Address -->
+                        <div class="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
+                            <i class="fas fa-map-marker-alt text-gray-300 text-4xl mb-3"></i>
+                            <p class="text-gray-500 text-sm mb-3">No saved addresses found.</p>
+                            <a href="{% url 'settings' %}" class="bg-teal-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition">
+                                <i class="fas fa-plus mr-1"></i>Add Address
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- ── Order Items ── -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-box text-teal-500 mr-2"></i>Order Items
+                        <span class="text-sm font-normal text-gray-500 ml-2">({{ cart.item_count }} item{{ cart.item_count|pluralize }})</span>
+                    </h2>
+                    <div class="divide-y">
+                        {% for item in cart.items.all %}
+                        <div class="flex items-center gap-4 py-3">
+                            {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" class="w-14 h-14 rounded-lg object-cover border">
+                            {% else %}
+                            <div class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <i class="fas fa-pills text-gray-300 text-xl"></i>
+                            </div>
+                            {% endif %}
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-800 text-sm truncate">{{ item.product.name }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">{{ item.product.brand }}</p>
+                                {% if item.product.requires_rx %}
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-600 text-xs rounded-full mt-1">
+                                    <i class="fas fa-prescription-bottle-alt text-xs"></i> Rx Required
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-gray-800">₹{{ item.subtotal }}</p>
+                                <p class="text-xs text-gray-500">{{ item.quantity }} × ₹{{ item.product.price }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- ── Payment Method ── -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-credit-card text-teal-500 mr-2"></i>Payment Method
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                        <!-- eSewa -->
+                        <label class="payment-card flex items-center gap-4 p-4 border-2 border-teal-500 bg-teal-50 rounded-xl cursor-pointer transition-all"
+                               id="label-esewa">
+                            <input type="radio" name="payment_choice" value="esewa" checked
+                                   onchange="selectPayment('esewa')" class="accent-teal-600">
+                            <div class="flex items-center gap-3 flex-1">
+                                <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                                    <span class="text-white font-bold text-xs">eS</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800 text-sm">eSewa</p>
+                                    <p class="text-xs text-gray-500">Nepal's leading wallet</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Khalti -->
+                        <label class="payment-card flex items-center gap-4 p-4 border-2 border-gray-200 hover:border-purple-300 rounded-xl cursor-pointer transition-all"
+                               id="label-khalti">
+                            <input type="radio" name="payment_choice" value="khalti"
+                                   onchange="selectPayment('khalti')" class="accent-purple-600">
+                            <div class="flex items-center gap-3 flex-1">
+                                <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                                    <span class="text-white font-bold text-xs">Kh</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800 text-sm">Khalti</p>
+                                    <p class="text-xs text-gray-500">Digital wallet & bank</p>
+                                </div>
+                            </div>
+                        </label>
+
+                    </div>
+
+                    <!-- Sandbox Notice -->
+                    <div class="mt-4 flex items-start gap-2 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <i class="fas fa-flask text-yellow-500 mt-0.5 text-sm"></i>
+                        <p class="text-xs text-yellow-700">
+                            <strong>Sandbox Mode:</strong> No real money is charged.
+                            eSewa test: <code class="bg-yellow-100 px-1 rounded">9806800001</code> PIN: <code class="bg-yellow-100 px-1 rounded">1122</code> |
+                            Khalti test: <code class="bg-yellow-100 px-1 rounded">9800000001</code> MPIN: <code class="bg-yellow-100 px-1 rounded">1111</code>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-md p-6 sticky top-4">
+                    <h2 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-receipt text-teal-500 mr-2"></i>Order Summary
+                    </h2>
+
+                    <!-- Coupon -->
+                    <div class="mb-5">
+                        <label class="text-sm font-semibold text-gray-700 block mb-2">Coupon Code</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="coupon-input" placeholder="Enter code"
+                                   class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 uppercase">
+                            <button type="button" onclick="applyCoupon()"
+                                    class="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition">
+                                Apply
+                            </button>
+                        </div>
+                        <p id="coupon-msg" class="text-xs mt-1 hidden"></p>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div class="space-y-3 border-t pt-4">
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Subtotal</span>
+                            <span id="summary-subtotal">₹{{ cart.total }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Delivery</span>
+                            <span id="summary-delivery" class="{% if cart.total >= 500 %}text-green-600{% endif %}">
+                                {% if cart.total >= 500 %}Free{% else %}₹50{% endif %}
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600">
+                            <span>Tax (5%)</span>
+                            <span id="summary-tax">₹{{ cart.total|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-green-600 hidden" id="discount-row">
+                            <span>Discount</span>
+                            <span id="summary-discount">-₹0</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-gray-800 border-t pt-3 text-base">
+                            <span>Total</span>
+                            <span id="summary-total" class="text-teal-600 text-lg">₹0</span>
+                        </div>
+                    </div>
+
+                    <!-- Free Delivery Badge -->
+                    {% if cart.total < 500 %}
+                    <div class="mt-3 text-xs text-center text-teal-600 bg-teal-50 rounded-lg py-2">
+                        <i class="fas fa-truck mr-1"></i>Add ₹{{ 500|add:"-"|add:cart.total }} more for free delivery!
+                    </div>
+                    {% else %}
+                    <div class="mt-3 text-xs text-center text-green-600 bg-green-50 rounded-lg py-2">
+                        <i class="fas fa-check-circle mr-1"></i>You've unlocked free delivery!
+                    </div>
+                    {% endif %}
+
+                    <!-- Place Order Button -->
+                    {% if addresses %}
+                    <button type="button" onclick="placeOrder()"
+                            id="place-order-btn"
+                            class="w-full mt-5 bg-teal-600 text-white py-3 rounded-xl font-bold text-base hover:bg-teal-700 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-lock text-sm"></i>
+                        <span id="btn-text">Pay with eSewa</span>
+                    </button>
+                    {% else %}
+                    <div class="mt-5 bg-gray-100 text-gray-400 text-center py-3 rounded-xl text-sm font-semibold">
+                        Add an address to continue
+                    </div>
+                    {% endif %}
+
+                    <!-- Security Note -->
+                    <p class="text-xs text-center text-gray-400 mt-3">
+                        <i class="fas fa-shield-alt mr-1 text-green-500"></i>
+                        Secured & encrypted payment
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+    <!-- eSewa Hidden Submit Form (POST to eSewa gateway) -->
+    <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST" class="hidden">
+        <input type="hidden" name="amount" id="esewa-amount">
+        <input type="hidden" name="tax_amount" id="esewa-tax">
+        <input type="hidden" name="total_amount" id="esewa-total">
+        <input type="hidden" name="transaction_uuid" id="esewa-uuid">
+        <input type="hidden" name="product_code" value="EPAYTEST">
+        <input type="hidden" name="product_service_charge" value="0">
+        <input type="hidden" name="product_delivery_charge" value="0">
+        <input type="hidden" name="success_url" id="esewa-success-url">
+        <input type="hidden" name="failure_url" id="esewa-failure-url">
+        <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
+        <input type="hidden" name="signature" id="esewa-signature">
+    </form>
+
+    {% endif %}
+</div>
+
+<!-- Processing Overlay -->
+<div id="processing-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-2xl p-8 text-center shadow-2xl max-w-sm mx-4">
+        <div class="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="font-bold text-gray-800 text-lg" id="processing-msg">Processing...</p>
+        <p class="text-gray-500 text-sm mt-1">Please wait, do not close this tab.</p>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 right-6 px-5 py-3 rounded-lg shadow-lg hidden items-center gap-3 z-50 bg-teal-600 text-white max-w-sm">
+    <i class="fas fa-info-circle text-lg" id="toast-icon"></i>
+    <span id="toast-msg"></span>
+</div>
+
+<script>
+    // ── State ────────────────────────────────────────────────────────
+    const SUBTOTAL   = {{ cart.total|floatformat:2 }};
+    const DELIVERY   = SUBTOTAL >= 500 ? 0 : 50;
+    const TAX_RATE   = 0.05;
+    let   discount   = 0;
+    let   couponCode = '';
+    let   selectedPayment = 'esewa';
+
+    // ── Init: calculate totals on load ──────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        updateSummary();
+    });
+
+    function updateSummary() {
+        const tax   = parseFloat((SUBTOTAL * TAX_RATE).toFixed(2));
+        const total = parseFloat((SUBTOTAL + DELIVERY + tax - discount).toFixed(2));
+
+        document.getElementById('summary-subtotal').textContent = '₹' + SUBTOTAL.toFixed(2);
+        document.getElementById('summary-tax').textContent      = '₹' + tax.toFixed(2);
+        document.getElementById('summary-total').textContent    = '₹' + total.toFixed(2);
+
+        if (discount > 0) {
+            document.getElementById('discount-row').classList.remove('hidden');
+            document.getElementById('summary-discount').textContent = '-₹' + discount.toFixed(2);
+        }
+    }
+
+    // ── Payment Selection ────────────────────────────────────────────
+    function selectPayment(method) {
+        selectedPayment = method;
+        document.getElementById('payment_method_input').value = method;
+
+        // Reset all cards
+        ['esewa', 'khalti'].forEach(m => {
+            const label = document.getElementById('label-' + m);
+            if (m === method) {
+                label.classList.add('border-teal-500', 'bg-teal-50');
+                label.classList.remove('border-gray-200');
+            } else {
+                label.classList.remove('border-teal-500', 'bg-teal-50');
+                label.classList.add('border-gray-200');
+            }
+        });
+
+        // Update button text
+        const btnText = document.getElementById('btn-text');
+        if (method === 'esewa')  btnText.textContent = 'Pay with eSewa';
+        if (method === 'khalti') btnText.textContent = 'Pay with Khalti';
+    }
+
+    // ── Apply Coupon ─────────────────────────────────────────────────
+    async function applyCoupon() {
+        const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+        const msg  = document.getElementById('coupon-msg');
+        if (!code) return;
+
+        try {
+            const res  = await fetch('/pharmacy/coupon/apply/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ code })
+            });
+            const data = await res.json();
+
+            msg.classList.remove('hidden');
+            if (data.success) {
+                if (data.discount_type === 'flat') {
+                    discount = parseFloat(data.discount_value);
+                } else {
+                    discount = parseFloat(((SUBTOTAL * data.discount_value) / 100).toFixed(2));
+                }
+                couponCode = code;
+                document.getElementById('coupon_code_input').value = code;
+                msg.className = 'text-xs mt-1 text-green-600';
+                msg.textContent = '✓ ' + data.message;
+                updateSummary();
+            } else {
+                discount   = 0;
+                couponCode = '';
+                msg.className = 'text-xs mt-1 text-red-500';
+                msg.textContent = '✗ ' + data.message;
+                updateSummary();
+            }
+        } catch(e) {
+            showToast('Could not apply coupon. Try again.', true);
+        }
+    }
+
+    // ── Place Order ──────────────────────────────────────────────────
+    async function placeOrder() {
+        const addressInput = document.querySelector('input[name="address_id"]:checked');
+        if (!addressInput) {
+            showToast('Please select a delivery address.', true);
+            return;
+        }
+
+        const tax   = parseFloat((SUBTOTAL * TAX_RATE).toFixed(2));
+        const total = parseFloat((SUBTOTAL + DELIVERY + tax - discount).toFixed(2));
+
+        showProcessing('Creating your order...');
+
+        try {
+            const res  = await fetch('/pharmacy/checkout/initiate/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({
+                    address_id:     addressInput.value,
+                    payment_method: selectedPayment,
+                    coupon_code:    couponCode,
+                    total:          total,
+                    tax:            tax,
+                    delivery:       DELIVERY,
+                    discount:       discount
+                })
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                hideProcessing();
+                showToast(data.message || 'Something went wrong.', true);
+                return;
+            }
+
+            if (selectedPayment === 'esewa') {
+                initiateEsewa(data);
+            } else if (selectedPayment === 'khalti') {
+                initiateKhalti(data);
+            }
+
+        } catch(e) {
+            hideProcessing();
+            showToast('Network error. Please try again.', true);
+        }
+    }
+
+    // ── eSewa Payment ────────────────────────────────────────────────
+    function initiateEsewa(data) {
+        document.getElementById('processing-msg').textContent = 'Redirecting to eSewa...';
+        document.getElementById('esewa-amount').value       = data.amount;
+        document.getElementById('esewa-tax').value          = data.tax;
+        document.getElementById('esewa-total').value        = data.total;
+        document.getElementById('esewa-uuid').value         = data.transaction_uuid;
+        document.getElementById('esewa-success-url').value  = data.success_url;
+        document.getElementById('esewa-failure-url').value  = data.failure_url;
+        document.getElementById('esewa-signature').value    = data.signature;
+        document.getElementById('esewa-form').submit();
+    }
+
+    // ── Khalti Payment ───────────────────────────────────────────────
+    async function initiateKhalti(data) {
+        document.getElementById('processing-msg').textContent = 'Connecting to Khalti...';
+        // Khalti returns a payment_url, redirect to it
+        if (data.payment_url) {
+            window.location.href = data.payment_url;
+        } else {
+            hideProcessing();
+            showToast('Khalti initiation failed. Try again.', true);
+        }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────
+    function showProcessing(msg) {
+        document.getElementById('processing-msg').textContent = msg || 'Processing...';
+        const overlay = document.getElementById('processing-overlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+    }
+    function hideProcessing() {
+        const overlay = document.getElementById('processing-overlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+    }
+
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        const icon  = document.getElementById('toast-icon');
+        document.getElementById('toast-msg').textContent = message;
+        toast.className = `fixed bottom-6 right-6 px-5 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 max-w-sm ${isError ? 'bg-red-500' : 'bg-teal-600'} text-white`;
+        icon.className = `fas ${isError ? 'fa-exclamation-circle' : 'fa-check-circle'} text-lg`;
+        setTimeout(() => {
+            toast.classList.add('hidden');
+            toast.classList.remove('flex');
+        }, 4000);
+    }
+
+    function getCookie(name) {
+        let value = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) value = decodeURIComponent(c.slice(name.length + 1));
+        });
+        return value;
+    }
+
+    // ── Highlight selected address ────────────────────────────────────
+    document.querySelectorAll('input[name="address_id"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.address-card').forEach(card => {
+                card.classList.remove('border-teal-500', 'bg-teal-50');
+                card.classList.add('border-gray-200');
+            });
+            this.closest('.address-card').classList.add('border-teal-500', 'bg-teal-50');
+            this.closest('.address-card').classList.remove('border-gray-200');
+        });
+    });
+</script>
+
+{% endblock %}

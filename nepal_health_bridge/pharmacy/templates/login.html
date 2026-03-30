@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% block title %}Login / Register - HealthMeds{% endblock %}
+{% block content %}
+
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center px-4 py-12">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+        <!-- Header -->
+        <div class="bg-teal-600 px-8 py-8 text-center">
+            <div class="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-capsules text-teal-600 text-3xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white">Welcome to HealthMeds</h1>
+            <p class="text-teal-100 text-sm mt-1">Login or Register with your mobile number</p>
+        </div>
+
+        <!-- Form Body -->
+        <div class="px-8 py-8">
+
+            <!-- Step 1: Mobile Number -->
+            <div id="step-mobile">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-mobile-alt text-teal-500 mr-2"></i>Mobile Number
+                </label>
+                <div class="flex gap-2">
+                    <div class="flex items-center bg-gray-100 border border-gray-300 rounded-lg px-3 text-sm text-gray-600 font-semibold">
+                        +91
+                    </div>
+                    <input type="tel"
+                           id="mobile-input"
+                           maxlength="10"
+                           placeholder="Enter 10-digit mobile number"
+                           autocomplete="off"
+                           class="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+                </div>
+                <p id="mobile-error" class="text-red-500 text-xs mt-1 hidden">Please enter a valid 10-digit mobile number.</p>
+
+                <button id="send-otp-btn"
+                        onclick="sendOTP()"
+                        class="mt-5 w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Send OTP
+                </button>
+            </div>
+
+            <!-- Step 2: OTP Verification (hidden initially) -->
+            <div id="step-otp" class="hidden mt-6">
+                <div class="bg-teal-50 border border-teal-200 rounded-lg px-4 py-3 mb-5 flex items-start gap-3">
+                    <i class="fas fa-info-circle text-teal-500 mt-0.5"></i>
+                    <div>
+                        <p class="text-sm text-teal-800 font-semibold">OTP Sent!</p>
+                        <p class="text-xs text-teal-600">A 4-digit OTP has been sent to <span id="display-mobile" class="font-bold"></span></p>
+                        <p id="dev-otp-msg" class="text-xs text-orange-500 mt-1 font-semibold"></p>
+                    </div>
+                </div>
+
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-key text-teal-500 mr-2"></i>Enter OTP
+                </label>
+
+                <!-- OTP Boxes -->
+                <div class="flex gap-3 justify-center mb-2">
+                    <input type="text" maxlength="1" id="otp1"
+                           class="otp-box w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                           autocomplete="off"
+                           oninput="moveNext(this, 'otp2')" onkeydown="movePrev(event, null)">
+                    <input type="text" maxlength="1" id="otp2"
+                           class="otp-box w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                           autocomplete="off"
+                           oninput="moveNext(this, 'otp3')" onkeydown="movePrev(event, 'otp1')">
+                    <input type="text" maxlength="1" id="otp3"
+                           class="otp-box w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                           autocomplete="off"
+                           oninput="moveNext(this, 'otp4')" onkeydown="movePrev(event, 'otp2')">
+                    <input type="text" maxlength="1" id="otp4"
+                           class="otp-box w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200"
+                           autocomplete="off"
+                           oninput="moveNext(this, null)" onkeydown="movePrev(event, 'otp3')">
+                </div>
+
+                <p id="otp-error"   class="text-red-500 text-xs text-center mt-1 hidden">Invalid OTP. Please try again.</p>
+                <p id="otp-success" class="text-green-600 text-xs text-center mt-1 hidden"><i class="fas fa-check-circle mr-1"></i>OTP Verified! Redirecting...</p>
+
+                <button onclick="verifyOTP()"
+                        class="mt-5 w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-check-circle"></i> Verify OTP
+                </button>
+
+                <!-- Resend OTP -->
+                <div class="text-center mt-4">
+                    <p class="text-sm text-gray-500">Didn't receive OTP?
+                        <span id="resend-timer" class="text-gray-400 text-sm">Resend in <span id="countdown">30</span>s</span>
+                        <button id="resend-btn" onclick="resendOTP()" class="hidden text-teal-600 font-semibold hover:underline text-sm">Resend OTP</button>
+                    </p>
+                </div>
+
+                <!-- Change Number -->
+                <div class="text-center mt-2">
+                    <button onclick="changeNumber()" class="text-sm text-gray-400 hover:text-teal-600 hover:underline transition">
+                        <i class="fas fa-edit mr-1"></i>Change mobile number
+                    </button>
+                </div>
+            </div>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-3 my-6">
+                <div class="flex-1 border-t border-gray-200"></div>
+                <span class="text-xs text-gray-400">secure login</span>
+                <div class="flex-1 border-t border-gray-200"></div>
+            </div>
+
+            <!-- Trust Badges -->
+            <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-shield-alt text-teal-500 text-lg block mb-1"></i>100% Secure
+                </div>
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-lock text-teal-500 text-lg block mb-1"></i>Private
+                </div>
+                <div class="text-xs text-gray-500">
+                    <i class="fas fa-user-check text-teal-500 text-lg block mb-1"></i>Verified
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let countdownInterval;
+
+    // ── Get CSRF Token ───────────────────────────────────────────────
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+    // ── Send OTP ─────────────────────────────────────────────────────
+    async function sendOTP() {
+        const mobile      = document.getElementById('mobile-input').value.trim();
+        const mobileError = document.getElementById('mobile-error');
+        const btn         = document.getElementById('send-otp-btn');
+
+        if (!/^[6-9]\d{9}$/.test(mobile)) {
+            mobileError.classList.remove('hidden');
+            return;
+        }
+        mobileError.classList.add('hidden');
+
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        btn.disabled  = true;
+
+        try {
+            const response = await fetch("{% url 'login' %}", {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ action: 'send_otp', mobile: mobile })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                console.log('DEV OTP:', data.dev_otp);
+                const devMsg = document.getElementById('dev-otp-msg');
+                if (devMsg) devMsg.textContent = 'Dev OTP: ' + data.dev_otp;
+
+                document.getElementById('display-mobile').textContent = '+91 ' + mobile;
+                document.getElementById('step-otp').classList.remove('hidden');
+                document.getElementById('otp1').focus();
+                startCountdown();
+            } else {
+                mobileError.textContent = data.message;
+                mobileError.classList.remove('hidden');
+            }
+        } catch (err) {
+            mobileError.textContent = 'Something went wrong. Try again.';
+            mobileError.classList.remove('hidden');
+        }
+
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send OTP';
+        btn.disabled  = false;
+    }
+
+    // ── Verify OTP ───────────────────────────────────────────────────
+    async function verifyOTP() {
+        const mobile  = document.getElementById('mobile-input').value.trim();
+        const entered = ['otp1','otp2','otp3','otp4']
+            .map(id => document.getElementById(id).value).join('');
+
+        const otpError   = document.getElementById('otp-error');
+        const otpSuccess = document.getElementById('otp-success');
+
+        if (entered.length < 4) {
+            otpError.textContent = 'Please enter the 4-digit OTP.';
+            otpError.classList.remove('hidden');
+            return;
+        }
+
+        try {
+            const response = await fetch("{% url 'login' %}", {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ action: 'verify_otp', mobile: mobile, otp: entered })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                otpError.classList.add('hidden');
+                otpSuccess.classList.remove('hidden');
+
+                // Mark boxes green
+                document.querySelectorAll('.otp-box').forEach(box => {
+                    box.classList.add('border-green-500', 'bg-green-50');
+                });
+
+                // ✅ Save all user info to localStorage
+                localStorage.setItem('isLoggedIn',   'true');
+                localStorage.setItem('userMobile',    '+91 ' + mobile);
+                localStorage.setItem('userFirstName', data.first_name || '');
+                localStorage.setItem('userLastName',  data.last_name  || '');  // ← NEW
+                localStorage.setItem('isAdmin',       data.is_admin ? 'true' : 'false'); // ← NEW
+
+                // Redirect after 1 second
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/';
+                }, 1000);
+
+            } else {
+                otpSuccess.classList.add('hidden');
+                otpError.textContent = data.message;
+                otpError.classList.remove('hidden');
+                document.querySelectorAll('.otp-box').forEach(box => {
+                    box.classList.add('border-red-500');
+                    box.value = '';
+                });
+                document.getElementById('otp1').focus();
+            }
+        } catch (err) {
+            otpError.textContent = 'Something went wrong. Try again.';
+            otpError.classList.remove('hidden');
+        }
+    }
+
+    // ── Move Between OTP Boxes ───────────────────────────────────────
+    function moveNext(current, nextId) {
+        current.value = current.value.replace(/[^0-9]/g, '');
+        if (current.value.length === 1 && nextId) {
+            document.getElementById(nextId).focus();
+        }
+        // Auto verify when all 4 entered
+        const all = ['otp1','otp2','otp3','otp4'].map(id => document.getElementById(id).value);
+        if (all.every(v => v.length === 1)) verifyOTP();
+    }
+
+    function movePrev(event, prevId) {
+        if (event.key === 'Backspace' && event.target.value === '' && prevId) {
+            document.getElementById(prevId).focus();
+        }
+    }
+
+    // ── Change Number ────────────────────────────────────────────────
+    function changeNumber() {
+        document.getElementById('step-otp').classList.add('hidden');
+        document.getElementById('mobile-input').value = '';
+        document.getElementById('otp-error').classList.add('hidden');
+        document.getElementById('otp-success').classList.add('hidden');
+        document.querySelectorAll('.otp-box').forEach(box => {
+            box.value = '';
+            box.classList.remove('border-green-500', 'bg-green-50', 'border-red-500');
+        });
+        clearInterval(countdownInterval);
+        document.getElementById('mobile-input').focus();
+    }
+
+    // ── Countdown Timer ──────────────────────────────────────────────
+    function startCountdown() {
+        let seconds = 30;
+        document.getElementById('countdown').textContent = seconds;
+        document.getElementById('resend-timer').classList.remove('hidden');
+        document.getElementById('resend-btn').classList.add('hidden');
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            seconds--;
+            document.getElementById('countdown').textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('resend-timer').classList.add('hidden');
+                document.getElementById('resend-btn').classList.remove('hidden');
+            }
+        }, 1000);
+    }
+
+    // ── Resend OTP ───────────────────────────────────────────────────
+    function resendOTP() {
+        document.querySelectorAll('.otp-box').forEach(box => {
+            box.value = '';
+            box.classList.remove('border-green-500', 'bg-green-50', 'border-red-500');
+        });
+        document.getElementById('otp-error').classList.add('hidden');
+        document.getElementById('otp-success').classList.add('hidden');
+        document.getElementById('otp1').focus();
+        sendOTP();
+    }
+</script>
+
+{% endblock %}

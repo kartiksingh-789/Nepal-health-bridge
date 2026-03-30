@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Doctor - Nepal Health Bridge</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            padding-bottom: 50px;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            padding: 40px 0 60px;
+            margin-bottom: -30px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+        }
+
+        .btn-back {
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        /* Doctor Cards */
+        .doctor-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .doctor-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--bg-light);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .doctor-info {
+            flex-grow: 1;
+        }
+
+        .doctor-name {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .doctor-specialty {
+            color: #6c757d;
+            font-weight: 500;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .doctor-time {
+            display: inline-block;
+            background: rgba(46, 139, 87, 0.1);
+            color: #2e8b57;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .btn-book {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn-book:hover {
+            background-color: var(--primary-hover);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3);
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+
+    <div class="page-header">
+        <div class="container">
+            <a href="/patient/select-department/" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Back to Departments
+            </a>
+            <h2 class="fw-bold mb-0">Select a Doctor</h2>
+            <p class="opacity-75">{{ department.name|default:"All Departments" }} | {{ hospital.name|default:"Nepal Health Bridge" }}</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <div class="row g-4">
+            {% for doctor in doctors %}
+            <!-- Doctor Card -->
+            <div class="col-lg-6">
+                <div class="doctor-card">
+                    <img src="https://ui-avatars.com/api/?name=Dr+{{ doctor.full_name|urlencode }}&background=0056b3&color=fff"
+                        alt="Doctor" class="doctor-avatar">
+                    <div class="doctor-info">
+                        <h4 class="doctor-name">Dr. {{ doctor.full_name }}</h4>
+                        <div class="doctor-specialty">{{ doctor.specialty }}</div>
+                        <div class="doctor-time"><i class="fa-regular fa-clock me-1"></i> Available</div>
+                        <br>
+                        <a href="{% url 'medical_history' %}?doctor_id={{ doctor.id }}" class="btn-book">
+                            Book Appointment <i class="fa-solid fa-calendar-check ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted">No doctors currently available in this department.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+
+</html>

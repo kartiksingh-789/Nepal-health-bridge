@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Order Confirmed - HealthMeds{% endblock %}
+{% block content %}
+
+<div class="container mx-auto px-4 py-16 max-w-2xl text-center">
+
+    <!-- Success Animation -->
+    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+        <i class="fas fa-check-circle text-green-500 text-5xl"></i>
+    </div>
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Order Confirmed! 🎉</h1>
+    <p class="text-gray-500 mb-8">Thank you for your order. We'll prepare it right away.</p>
+
+    <!-- Order Info Card -->
+    <div class="bg-white rounded-2xl shadow-md p-6 text-left mb-8">
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Order ID</p>
+                <p class="font-bold text-gray-800">#ORD{{ order.id|stringformat:"03d" }}</p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Payment</p>
+                <p class="font-bold text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i>Paid
+                </p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Method</p>
+                <p class="font-bold text-gray-800 capitalize">{{ order.payment_method }}</p>
+            </div>
+            <div class="bg-gray-50 rounded-xl p-4">
+                <p class="text-xs text-gray-500 mb-1">Total Paid</p>
+                <p class="font-bold text-teal-600 text-lg">₹{{ order.total }}</p>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <h3 class="font-semibold text-gray-700 mb-3 text-sm">Items Ordered</h3>
+        <div class="divide-y border rounded-xl overflow-hidden">
+            {% for item in order.items.all %}
+            <div class="flex items-center gap-3 px-4 py-3">
+                {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" class="w-10 h-10 rounded-lg object-cover">
+                {% else %}
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-pills text-gray-300"></i>
+                </div>
+                {% endif %}
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-gray-800">{{ item.name }}</p>
+                    <p class="text-xs text-gray-500">Qty: {{ item.quantity }}</p>
+                </div>
+                <p class="text-sm font-bold text-gray-700">₹{{ item.subtotal }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Delivery Address -->
+        {% if order.address %}
+        <div class="mt-4 bg-teal-50 rounded-xl p-4">
+            <p class="text-xs font-semibold text-teal-700 mb-1">
+                <i class="fas fa-map-marker-alt mr-1"></i>Delivering To
+            </p>
+            <p class="text-sm text-gray-700">
+                {{ order.address.full_name }} — {{ order.address.address_line }},
+                {{ order.address.city }}, {{ order.address.state }} - {{ order.address.pincode }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- CTA Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="{% url 'orders' %}"
+           class="bg-teal-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-teal-700 transition">
+            <i class="fas fa-box mr-2"></i>Track My Order
+        </a>
+        <a href="{% url 'products' %}"
+           class="border border-teal-600 text-teal-600 px-8 py-3 rounded-xl font-semibold hover:bg-teal-50 transition">
+            <i class="fas fa-shopping-bag mr-2"></i>Continue Shopping
+        </a>
+    </div>
+</div>
+
+{% endblock %}

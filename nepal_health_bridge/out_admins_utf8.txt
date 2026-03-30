@@ -1,0 +1,9 @@
+--- Hospital Admins ---
+Username: soumeshpan_2005 | Hospital: Kathmandu Central Hospital
+Username: kartiksingh_2005 | Hospital: Bir Hospital
+Username: hritambasu_2005 | Hospital: Nobel Medical College
+Username: rcsaha_2004 | Hospital: Tribhuvan University Teaching Hospital
+Username: prantik_roy2004 | Hospital: B.P. Koirala Institute of Health Sciences
+
+--- Django Superusers ---
+Username: soumesh | is_superuser: True

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Symptoms Analyzer - Nepal Health Bridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-bg: #002b5b;
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --secondary-color: #2e8b57;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
+        .wrapper { display: flex; width: 100%; align-items: stretch; min-height: 100vh; }
+        #sidebar { min-width: 280px; max-width: 280px; background: var(--sidebar-bg); color: #fff; transition: all 0.3s; display: flex; flex-direction: column; box-shadow: 4px 0 15px rgba(0,0,0,0.1); position: fixed; height: 100vh; z-index: 1000; }
+        .sidebar-header { padding: 30px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header .icon-bg { background-color: rgba(255,255,255,0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 10px; }
+        .sidebar-header h4 { margin: 0; font-weight: 700; font-size: 1.2rem; letter-spacing: 0.5px; }
+        ul.components { padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); flex-grow: 1; }
+        #sidebar ul li a { padding: 15px 30px; font-size: 1.05rem; display: flex; align-items: center; gap: 15px; color: rgba(255,255,255,0.8); text-decoration: none; transition: all 0.3s; border-left: 4px solid transparent; }
+        #sidebar ul li a:hover, #sidebar ul li.active>a { color: #fff; background: rgba(255,255,255,0.1); border-left: 4px solid #fff; }
+        #content { width: calc(100% - 280px); margin-left: 280px; padding: 40px; transition: all 0.3s; }
+        
+        .top-navbar { background: #fff; padding: 15px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; }
+
+        .analyzer-header {
+            background: linear-gradient(135deg, #1f4037, #2d5a27);
+            border-radius: 20px;
+            padding: 50px 40px;
+            color: white;
+            box-shadow: 0 15px 35px rgba(31,64,55,0.2);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .icon-overlay {
+            position: absolute;
+            right: -5%;
+            top: -10%;
+            font-size: 15rem;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: -40px auto 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .search-input {
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.15rem;
+            flex-grow: 1;
+            outline: none;
+            border-radius: 15px;
+            font-weight: 500;
+        }
+
+        .btn-analyze {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-analyze:hover {
+            background-color: #246e45;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46,139,87,0.3);
+            color: white;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+            transition: transform 0.3s;
+        }
+
+        .result-card:hover { transform: translateY(-5px); }
+
+        .result-header {
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .specialty-info { display: flex; align-items: center; gap: 20px; }
+        .specialty-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .confidence-badge {
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: rgba(46,139,87,0.1);
+            color: var(--secondary-color);
+        }
+
+        .match-section { padding: 25px; background: #fafafa; }
+        .match-title { font-size: 0.9rem; font-weight: 700; color: #6c757d; text-transform: uppercase; margin-bottom: 20px; }
+
+        .dept-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hospital-tag {
+            font-size: 0.85rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .btn-book {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .btn-book:hover { background: var(--primary-hover); transform: translateX(5px); color: white; }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            background: white;
+            border-radius: 20px;
+            color: #6c757d;
+        }
+
+        .disclaimer-card {
+            background: #fff3cd;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 5px solid #ffca2c;
+            margin-top: 50px;
+            color: #856404;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) { #sidebar { margin-left: -280px; } #sidebar.active { margin-left: 0; } #content { width: 100%; margin-left: 0; } }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <div class="icon-bg"><i class="fa-solid fa-user-injured"></i></div>
+                <h4>Nepal Health Bridge</h4>
+            </div>
+            <ul class="list-unstyled components">
+                <li><a href="{% url 'patient_dashboard' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a></li>
+                <li class="active"><a href="#"><i class="fa-solid fa-robot"></i> Symptoms Analyzer</a></li>
+                <li><a href="/patient/select-hospital/"><i class="fa-regular fa-hospital"></i> Book Appointment</a></li>
+                 <li><a href="{% url 'patient_my_appointments' %}"><i class="fa-regular fa-calendar-check"></i> My Appointments</a></li>
+                <li><a href="{% url 'patient_profile' %}"><i class="fa-regular fa-id-badge"></i> Profile</a></li>
+            </ul>
+        </nav>
+
+        <div id="content">
+            <div class="top-navbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" id="sidebarCollapse" class="btn btn-light d-md-none"><i class="fas fa-align-left"></i></button>
+                    <h5 class="mb-0 fw-bold text-muted">AI Diagnostic Assistant</h5>
+                </div>
+                <div class="user-profile d-flex align-items-center gap-2">
+                    <span class="fw-semibold">{{ patient_name }}</span>
+                    <img src="https://ui-avatars.com/api/?name={{ patient_name|urlencode }}&background=0056b3&color=fff" class="rounded-circle" width="35">
+                </div>
+            </div>
+
+            <div class="analyzer-header">
+                <i class="fa-solid fa-robot icon-overlay"></i>
+                <h1 class="fw-bold mb-2">AI Symptoms Analyzer</h1>
+                <p class="opacity-75 lead mb-0">Describe your health concerns in natural language.</p>
+            </div>
+
+            <div class="search-container">
+                <form action="" method="GET">
+                    <div class="search-box">
+                        <input type="text" name="q" class="search-input" placeholder="e.g., 'I have sharp stomach pain and nausea for 2 days'..." value="{{ query }}" required>
+                        <button type="submit" class="btn-analyze">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Analyze
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="container-fluid px-0">
+                {% if query %}
+                    <h4 class="mb-4 fw-bold">Recommendations for <span class="text-secondary">"{{ query }}"</span></h4>
+                    
+                    {% for res in results %}
+                        <div class="result-card">
+                            <div class="result-header">
+                                <div class="specialty-info">
+                                    <div class="specialty-icon" style="background-color: {{ res.color }}; background-image: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)); color: {{ res.color }};">
+                                        <i class="fa-solid {{ res.icon }}"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="mb-1 fw-bold">{{ res.specialty }}</h3>
+                                        <p class="mb-0 text-muted small">Specialized medical care for your symptoms</p>
+                                    </div>
+                                </div>
+                                <div class="confidence-badge">
+                                    <i class="fa-solid fa-gauge-high me-1"></i> {{ res.confidence }}% AI Match
+                                </div>
+                            </div>
+
+                            <div class="match-section">
+                                <h6 class="match-title">Available Hospital Departments</h6>
+                                
+                                {% if res.matching_depts %}
+                                    <div class="row">
+                                        {% for dept in res.matching_depts %}
+                                            <div class="col-lg-6">
+                                                <div class="dept-card">
+                                                    <div>
+                                                        <h6 class="mb-0 fw-bold text-dark">{{ dept.name }}</h6>
+                                                        <div class="hospital-tag">
+                                                            <i class="fa-solid fa-hospital"></i> {{ dept.hospital.name }}
+                                                        </div>
+                                                    </div>
+                                                    <a href="/patient/select-doctor/?department_id={{ dept.id }}" class="btn-book">
+                                                        Book Appointment <i class="fa-solid fa-chevron-right ms-2"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-light border d-flex align-items-center gap-3">
+                                        <i class="fa-solid fa-circle-info text-muted fs-4"></i>
+                                        <div class="text-muted">No specific departments found in our network matching this specialty. Please try browsing by hospital.</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="mb-4"><i class="fa-solid fa-comment-medical fs-1 opacity-25"></i></div>
+                        <h4 class="fw-bold text-dark">How can we help you today?</h4>
+                        <p class="max-width-500 mx-auto">Enter your symptoms above and our AI will suggest the most suitable specialist and available hospitals in Nepal.</p>
+                    </div>
+                {% endif %}
+
+                <div class="disclaimer-card">
+                    <div class="d-flex gap-3">
+                        <i class="fa-solid fa-triangle-exclamation mt-1"></i>
+                        <p class="mb-0">
+                            <strong>Medical Disclaimer:</strong> This AI tool provides general information and suggestions only. It is NOT a professional medical diagnosis. If you are experiencing a medical emergency, please visit the nearest hospital immediately.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('sidebarCollapse')?.addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('content').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

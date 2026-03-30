@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Directory - Nepal Health Bridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-bg: #2c3e50;
+            --primary-color: #0056b3;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+            --hover-bg: rgba(255, 255, 255, 0.05);
+            --danger-color: #dc3545;
+            --success-color: #198754;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .wrapper { display: flex; min-height: 100vh; }
+
+        #sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand i { font-size: 2rem; color: #fff; margin-bottom: 10px; }
+        .sidebar-brand h5 { font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+
+        .nav-components { padding: 20px 0; }
+
+        .nav-components li a {
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-components li a:hover,
+        .nav-components li.active a {
+            color: #fff;
+            background: var(--hover-bg);
+            border-left-color: #fff;
+        }
+
+        .logout-link { color: #ff6b6b !important; }
+
+        #content { flex: 1; margin-left: 280px; padding: 40px; }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            font-weight: 600;
+        }
+
+        .admin-profile i { color: var(--primary-color); font-size: 1.2rem; }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .card-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table { vertical-align: middle; }
+
+        .table thead th {
+            color: #6c757d;
+            font-weight: 600;
+            border-bottom-width: 1px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+
+        .table tbody td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f2f5;
+            font-size: 0.95rem;
+        }
+
+        .patient-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0056b3 0%, #00b4d8 100%);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .summary-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .alert { border-radius: 8px; font-weight: 500; }
+
+        /* Snackbar */
+        #snackbar {
+            visibility: hidden;
+            min-width: 320px;
+            background-color: #343a40;
+            color: #fff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        #snackbar i, #snackbar span { z-index: 2; position: relative; }
+
+        #snackbar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            background-color: #198754;
+            width: 0;
+            z-index: 1;
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        #snackbar.show::before { animation: fillBg 1.2s linear forwards; }
+
+        @keyframes slideDown {
+            from { top: -50px; opacity: 0; }
+            to   { top: 30px;  opacity: 1; }
+        }
+
+        @keyframes fillBg {
+            0%   { width: 0; }
+            100% { width: 100%; }
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <!-- ── SIDEBAR ── -->
+        <nav id="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hospital"></i>
+                <h5>Hospital Admin</h5>
+                <span class="badge bg-light text-dark rounded-pill mt-2">{{ hospital_name }}</span>
+            </div>
+            <ul class="list-unstyled nav-components">
+                <li><a href="{% url 'hospital_admin_dashboard' %}"><i class="fa-solid fa-chart-line"></i> Main Dashboard</a></li>
+                <li><a href="{% url 'admin_manage_appointments' %}"><i class="fa-solid fa-calendar-check"></i> Manage Appointments</a></li>
+                <li><a href="{% url 'admin_manage_doctors' %}"><i class="fa-solid fa-user-doctor"></i> Add / Manage Doctors</a></li>
+                <li><a href="{% url 'admin_manage_departments' %}"><i class="fa-solid fa-sitemap"></i> Manage Departments</a></li>
+
+                <li style="padding: 10px 25px 4px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.35); font-weight: 700;">Patients</li>
+                <li><a href="{% url 'admin_patient_contacts' %}"><i class="fa-solid fa-envelope-open-text"></i> Patient Inquiries</a></li>
+                <li class="active"><a href="{% url 'admin_patient_directory' %}"><i class="fa-solid fa-id-card"></i> Patient Contact Details</a></li>
+
+                <li><a href="{% url 'admin_reports_billing' %}"><i class="fa-solid fa-file-invoice"></i> Reports & Billing</a></li>
+                <li style="margin-top: 40px;">
+                    <a href="{% url 'admin_logout' %}" onclick="handleLogout(event, this.href)" class="logout-link">
+                        <i class="fa-solid fa-power-off"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- ── MAIN CONTENT ── -->
+        <div id="content">
+            <div class="top-header">
+                <div>
+                    <h2 class="fw-bold mb-0">Patient Contact Details</h2>
+                    <p class="text-muted">Registered patients and their contact information.</p>
+                </div>
+                <div class="admin-profile">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>{{ admin_name|default:"Admin User" }}</span>
+                </div>
+            </div>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show mb-3" role="alert">
+                <i class="fa-solid fa-{% if message.tags == 'error' %}circle-xmark{% else %}circle-check{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- ── Summary Cards ── -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="summary-card">
+                        <div class="summary-icon bg-primary bg-opacity-10">
+                            <i class="fa-solid fa-users text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">{{ total_patients }}</div>
+                            <div class="text-muted small">Total Registered Patients</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card">
+                        <div class="summary-icon bg-success bg-opacity-10">
+                            <i class="fa-solid fa-calendar-check text-success"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">{{ patients_with_appointments }}</div>
+                            <div class="text-muted small">Have Appointments</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-card">
+                        <div class="summary-icon bg-info bg-opacity-10">
+                            <i class="fa-solid fa-phone text-info"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4">{{ patients_with_phone }}</div>
+                            <div class="text-muted small">With Phone Number</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Patient Directory Table ── -->
+            <div class="dashboard-card">
+                <div class="card-header-custom">
+                    <h3 class="card-title">
+                        <i class="fa-solid fa-id-card text-primary"></i> Patient Directory
+                    </h3>
+
+                    <!-- Search -->
+                    <form method="GET" action="{% url 'admin_patient_directory' %}" class="d-flex gap-2 flex-wrap align-items-center">
+                        <input type="text" class="form-control" name="search" value="{{ search|default:'' }}"
+                            placeholder="Search by name, email, or phone..." style="max-width: 280px;">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i> Search
+                        </button>
+                        {% if search %}
+                        <a href="{% url 'admin_patient_directory' %}" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-xmark"></i> Clear
+                        </a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Patient</th>
+                                <th>Email</th>
+                                <th>Primary Phone</th>
+                                <th>Alt. Phone</th>
+                                <th>Address</th>
+                                <th>Gender</th>
+                                <th>Blood Group</th>
+                                <th>Registered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients %}
+                            <tr>
+                                <td class="text-muted small">{{ forloop.counter }}</td>
+
+                                <!-- Patient Name + Avatar -->
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="patient-avatar">
+                                            {{ patient.full_name|slice:":1"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold text-dark">{{ patient.full_name }}</div>
+                                            <div class="text-muted small">@{{ patient.username }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- Email -->
+                                <td>
+                                    <a href="mailto:{{ patient.email }}" class="text-decoration-none text-primary">
+                                        {{ patient.email }}
+                                    </a>
+                                </td>
+
+                                <!-- Primary Phone -->
+                                <td>
+                                    {% if patient.primary_phone %}
+                                    <a href="tel:{{ patient.primary_phone }}" class="text-decoration-none text-dark">
+                                        <i class="fa-solid fa-phone fa-xs text-primary me-1"></i>{{ patient.primary_phone }}
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Alt Phone -->
+                                <td>
+                                    {% if patient.alternate_phone %}
+                                    <span class="text-muted small">{{ patient.alternate_phone }}</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Address -->
+                                <td>
+                                    <span class="small text-muted">
+                                        {% if patient.city %}{{ patient.city }}{% endif %}
+                                        {% if patient.district %}, {{ patient.district }}{% endif %}
+                                        {% if patient.country %}, {{ patient.country }}{% endif %}
+                                    </span>
+                                </td>
+
+                                <!-- Gender -->
+                                <td>
+                                    {% if patient.gender == 'M' %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">Male</span>
+                                    {% elif patient.gender == 'F' %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger">Female</span>
+                                    {% elif patient.gender %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">Other</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Blood Group -->
+                                <td>
+                                    {% if patient.blood_group %}
+                                    <span class="badge bg-danger text-white fw-bold">{{ patient.blood_group }}</span>
+                                    {% else %}
+                                    <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Registered Date -->
+                                <td class="text-muted small">{{ patient.created_at|date:"M j, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-5">
+                                    <i class="fa-solid fa-user-xmark mb-3" style="font-size: 2.5rem; opacity: 0.4;"></i>
+                                    <p class="mb-0 fw-semibold">No patients found.</p>
+                                    <p class="small mt-1">Patients will appear here once they register on the platform.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snackbar -->
+    <div id="snackbar"><i class="fa-solid fa-circle-check"></i> <span>Logout Successful!</span></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function handleLogout(e, url) {
+            e.preventDefault();
+            document.getElementById("snackbar").className = "show";
+            setTimeout(function () { window.location.href = url; }, 1200);
+        }
+
+        setTimeout(function () {
+            document.querySelectorAll('.alert').forEach(function (a) {
+                new bootstrap.Alert(a).close();
+            });
+        }, 4000);
+    </script>
+</body>
+
+</html>

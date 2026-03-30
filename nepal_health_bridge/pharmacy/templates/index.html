@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% block title %}HealthMeds - Buy Medicines Online{% endblock %}
+{% block content %}
+
+<!-- ── Hero Section ── -->
+<section class="bg-gradient-to-r from-teal-50 to-blue-50 py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                Your Health, Our Priority
+            </h1>
+            <p class="text-lg text-gray-600 mb-8">
+                Order medicines online with prescription upload and get doorstep delivery
+            </p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <a href="{% url 'products' %}"
+                   class="bg-teal-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-teal-700 transition">
+                    <i class="fas fa-shopping-bag mr-2"></i>Shop Medicines
+                </a>
+                <button onclick="openPrescriptionModal()"
+                        class="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold border-2 border-teal-600 hover:bg-teal-50 transition">
+                    <i class="fas fa-file-medical mr-2"></i>Upload Prescription
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Categories Section - Real DB Data ── -->
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <h2 class="text-2xl font-bold text-center mb-8">Shop by Category</h2>
+
+        {% if categories %}
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {% for cat in categories %}
+            <a href="{% url 'products' %}?category={{ cat.slug }}" class="block">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center hover-scale cursor-pointer">
+                    {% if cat.icon %}
+                    <i class="{{ cat.icon }} text-teal-600 text-4xl mb-3"></i>
+                    {% else %}
+                    <i class="fas fa-pills text-teal-600 text-4xl mb-3"></i>
+                    {% endif %}
+                    <h3 class="font-semibold text-sm">{{ cat.name }}</h3>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Fallback static categories if none in DB -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            <a href="{% url 'products' %}" class="block">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center hover-scale">
+                    <i class="fas fa-pills text-teal-600 text-4xl mb-3"></i>
+                    <h3 class="font-semibold text-sm">Medicines</h3>
+                </div>
+            </a>
+            <a href="{% url 'products' %}" class="block">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center hover-scale">
+                    <i class="fas fa-heart text-red-500 text-4xl mb-3"></i>
+                    <h3 class="font-semibold text-sm">Vitamins</h3>
+                </div>
+            </a>
+            <a href="{% url 'products' %}" class="block">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center hover-scale">
+                    <i class="fas fa-band-aid text-yellow-500 text-4xl mb-3"></i>
+                    <h3 class="font-semibold text-sm">First Aid</h3>
+                </div>
+            </a>
+            <a href="{% url 'products' %}" class="block">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center hover-scale">
+                    <i class="fas fa-thermometer text-green-500 text-4xl mb-3"></i>
+                    <h3 class="font-semibold text-sm">Healthcare</h3>
+                </div>
+            </a>
+            <a href="{% url 'products' %}" class="block">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center hover-scale">
+                    <i class="fas fa-spa text-teal-600 text-4xl mb-3"></i>
+                    <h3 class="font-semibold text-sm">Wellness</h3>
+                </div>
+            </a>
+            <a href="{% url 'products' %}" class="block">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center hover-scale">
+                    <i class="fas fa-baby text-pink-500 text-4xl mb-3"></i>
+                    <h3 class="font-semibold text-sm">Baby Care</h3>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ── Featured Products - Real DB Data ── -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold">Popular Medicines</h2>
+            <a href="{% url 'products' %}" class="text-teal-600 font-semibold hover:underline">View All →</a>
+        </div>
+
+        {% if featured_products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover-scale">
+                <a href="{% url 'product_detail' product.id %}">
+                    <div class="relative">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                             class="w-full h-48 object-cover">
+                        {% else %}
+                        <img src="https://via.placeholder.com/300x200?text={{ product.name|urlencode }}"
+                             alt="{{ product.name }}" class="w-full h-48 object-cover">
+                        {% endif %}
+
+                        {% if product.discount_percent > 0 %}
+                        <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-semibold">
+                            {{ product.discount_percent }}% OFF
+                        </span>
+                        {% endif %}
+
+                        {% if product.requires_rx %}
+                        <span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded">
+                            Rx
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <p class="text-xs text-gray-400 mb-1">{{ product.brand|default:"HealthMeds" }}</p>
+                        <h3 class="font-semibold text-gray-800 mb-2 line-clamp-2">{{ product.name }}</h3>
+
+                        <!-- Stars -->
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400 text-xs">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.average_rating %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="text-xs text-gray-500 ml-1">({{ product.reviews.count }})</span>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                {% if product.original_price > product.price %}
+                                <span class="text-gray-400 line-through text-sm">₹{{ product.original_price }}</span>
+                                {% endif %}
+                                <span class="text-teal-600 font-bold text-xl ml-1">₹{{ product.price }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <!-- Add to Cart -->
+                <div class="px-4 pb-4">
+                    <button onclick="addToCart({{ product.id }}, '{{ product.name }}')"
+                            class="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- No products in DB yet -->
+        <div class="text-center py-12 bg-white rounded-xl shadow">
+            <i class="fas fa-box-open text-gray-300 text-5xl mb-4"></i>
+            <p class="text-gray-500 font-semibold">No products yet.</p>
+            <p class="text-gray-400 text-sm mt-1">Add products from the admin panel.</p>
+            <a href="/admin/pharmacy/product/add/"
+               class="mt-4 inline-block bg-teal-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-teal-700 transition">
+                Add Products
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ── Promo Banner ── -->
+<section class="py-12">
+    <div class="container mx-auto px-4">
+        <div class="bg-gradient-to-r from-teal-600 to-teal-800 rounded-2xl p-8 md:p-12 text-white text-center">
+            <h2 class="text-3xl font-bold mb-3">Get 50% Off on First Order!</h2>
+            <p class="text-teal-100 mb-6">Use code <span class="bg-white text-teal-600 px-3 py-1 rounded font-bold text-lg">HEALTH10</span> at checkout</p>
+            <a href="{% url 'products' %}"
+               class="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-teal-50 transition inline-block">
+                Shop Now
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Features Section ── -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            <div class="p-6">
+                <div class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-truck text-teal-600 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-800 mb-2">Free Delivery</h3>
+                <p class="text-sm text-gray-500">On orders above ₹500</p>
+            </div>
+            <div class="p-6">
+                <div class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-teal-600 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-800 mb-2">100% Genuine</h3>
+                <p class="text-sm text-gray-500">Authentic medicines only</p>
+            </div>
+            <div class="p-6">
+                <div class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-undo text-teal-600 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-800 mb-2">Easy Returns</h3>
+                <p class="text-sm text-gray-500">7 day return policy</p>
+            </div>
+            <div class="p-6">
+                <div class="w-14 h-14 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-headset text-teal-600 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-gray-800 mb-2">24/7 Support</h3>
+                <p class="text-sm text-gray-500">Always here to help</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+ <!-- Scripts moved to base.html -->
+
+{% endblock %}

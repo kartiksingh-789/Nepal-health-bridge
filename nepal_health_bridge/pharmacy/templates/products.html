@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% block title %}Browse Medicines - HealthMeds{% endblock %}
+{% block content %}
+
+<!-- Breadcrumb -->
+<nav class="bg-gray-50 py-3 border-b">
+    <div class="container mx-auto px-4 text-sm text-gray-600">
+        <a href="{% url 'index' %}" class="text-primary hover:underline">Home</a> /
+        <span class="text-gray-800 font-semibold">Medicines</span>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+        <!-- ── Sidebar Filters ── -->
+        <aside class="lg:col-span-1">
+            <form method="GET" action="{% url 'products' %}" id="filter-form">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-20">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold">Filters</h3>
+                        <a href="{% url 'products' %}" class="text-xs text-teal-600 hover:underline">Reset All</a>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="mb-6 pb-6 border-b">
+                        <h4 class="font-semibold mb-3 text-gray-800">Search</h4>
+                        <input type="text" name="search" value="{{ search }}"
+                               placeholder="Search medicines..."
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+                    </div>
+
+                    <!-- Category Filter - from DB -->
+                    <div class="mb-6 pb-6 border-b">
+                        <h4 class="font-semibold mb-3 text-gray-800">Category</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="category" value="all" class="mr-2"
+                                       {% if not request.GET.category or request.GET.category == 'all' %}checked{% endif %}
+                                       onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700">All Categories</span>
+                            </label>
+                            {% for cat in categories %}
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="category" value="{{ cat.slug }}" class="mr-2"
+                                       {% if request.GET.category == cat.slug %}checked{% endif %}
+                                       onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700">{{ cat.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="mb-6 pb-6 border-b">
+                        <h4 class="font-semibold mb-3 text-gray-800">Price Range</h4>
+                        <div class="space-y-2">
+                            {% for value, label in price_choices %}
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="price" value="{{ value }}" class="mr-2"
+                                       {% if request.GET.price == value or not request.GET.price and value == 'all' %}checked{% endif %}
+                                       onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700">{{ label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Prescription Filter -->
+                    <div class="mb-6 pb-6 border-b">
+                        <h4 class="font-semibold mb-3 text-gray-800">Prescription</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="rx" value="all" class="mr-2"
+                                       {% if not request.GET.rx or request.GET.rx == 'all' %}checked{% endif %}
+                                       onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700">All</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="rx" value="no" class="mr-2"
+                                       {% if request.GET.rx == 'no' %}checked{% endif %}
+                                       onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700">Without Prescription</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="rx" value="yes" class="mr-2"
+                                       {% if request.GET.rx == 'yes' %}checked{% endif %}
+                                       onchange="this.form.submit()">
+                                <span class="text-sm text-gray-700">Rx Required</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
+        </aside>
+
+        <!-- ── Products Grid ── -->
+        <main class="lg:col-span-3">
+
+            <!-- Sort and Count -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold">
+                    All Medicines
+                    <span class="text-base font-normal text-gray-500 ml-2">({{ products|length }} products)</span>
+                </h2>
+                <select onchange="window.location.href=this.value"
+                        class="border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <option value="?sort=relevance{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price %}&price={{ request.GET.price }}{% endif %}"
+                            {% if sort == 'relevance' %}selected{% endif %}>Sort by: Relevance</option>
+                    <option value="?sort=price-low{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price %}&price={{ request.GET.price }}{% endif %}"
+                            {% if sort == 'price-low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="?sort=price-high{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price %}&price={{ request.GET.price }}{% endif %}"
+                            {% if sort == 'price-high' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="?sort=newest{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}{% if request.GET.price %}&price={{ request.GET.price }}{% endif %}"
+                            {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+                </select>
+            </div>
+
+            <!-- Active Filters Tags -->
+            {% if search or request.GET.category and request.GET.category != 'all' or request.GET.price and request.GET.price != 'all' %}
+            <div class="flex flex-wrap gap-2 mb-4">
+                {% if search %}
+                <span class="bg-teal-100 text-teal-700 text-xs px-3 py-1 rounded-full flex items-center gap-1">
+                    Search: {{ search }}
+                    <a href="{% url 'products' %}" class="ml-1 hover:text-teal-900">✕</a>
+                </span>
+                {% endif %}
+                {% if request.GET.category and request.GET.category != 'all' %}
+                <span class="bg-teal-100 text-teal-700 text-xs px-3 py-1 rounded-full">
+                    Category: {{ request.GET.category }}
+                </span>
+                {% endif %}
+                {% if request.GET.price and request.GET.price != 'all' %}
+                <span class="bg-teal-100 text-teal-700 text-xs px-3 py-1 rounded-full">
+                    Price: {{ request.GET.price }}
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Products Grid - Real DB Data -->
+            {% if products %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {% for product in products %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover-scale">
+                    <a href="{% url 'product_detail' product.id %}">
+                        <div class="relative">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                 class="w-full h-48 object-cover">
+                            {% else %}
+                            <img src="https://via.placeholder.com/300x200?text={{ product.name|urlencode }}"
+                                 alt="{{ product.name }}" class="w-full h-48 object-cover">
+                            {% endif %}
+
+                            {% if product.discount_percent > 0 %}
+                            <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded font-semibold">
+                                {{ product.discount_percent }}% OFF
+                            </span>
+                            {% endif %}
+
+                            {% if product.requires_rx %}
+                            <span class="absolute top-2 right-2 bg-yellow-500 text-white text-xs px-2 py-1 rounded font-semibold">
+                                Rx Required
+                            </span>
+                            {% endif %}
+
+                            {% if not product.is_in_stock %}
+                            <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                                <span class="bg-red-500 text-white text-sm px-4 py-2 rounded-lg font-semibold">Out of Stock</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="p-4">
+                            <p class="text-xs text-gray-400 mb-1">{{ product.brand|default:"HealthMeds" }}</p>
+                            <h3 class="font-semibold text-gray-800 mb-2 line-clamp-2">{{ product.name }}</h3>
+
+                            <!-- Rating -->
+                            <div class="flex items-center mb-2">
+                                <div class="flex text-yellow-400 text-xs">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.average_rating %}
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="text-xs text-gray-500 ml-1">({{ product.reviews.count }})</span>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    {% if product.original_price > product.price %}
+                                    <span class="text-gray-400 line-through text-sm">₹{{ product.original_price }}</span>
+                                    {% endif %}
+                                    <span class="text-teal-600 font-bold text-lg ml-1">₹{{ product.price }}</span>
+                                </div>
+                                {% if product.stock <= 10 and product.stock > 0 %}
+                                <span class="text-xs text-orange-500 font-semibold">Only {{ product.stock }} left!</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Add to Cart Button -->
+                    <div class="px-4 pb-4">
+                        {% if product.is_in_stock %}
+                        <button onclick="addToCart({{ product.id }}, '{{ product.name }}')"
+                                class="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition flex items-center justify-center gap-2 text-sm">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                        {% else %}
+                        <button disabled
+                                class="w-full bg-gray-200 text-gray-400 py-2 rounded-lg font-semibold text-sm cursor-not-allowed">
+                            Out of Stock
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-16">
+                <i class="fas fa-search text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-500 mb-2">No products found</h3>
+                <p class="text-gray-400 text-sm mb-6">Try adjusting your filters or search term.</p>
+                <a href="{% url 'products' %}"
+                   class="bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
+                    Reset Filters
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Pagination -->
+            {% if products %}
+            <div class="flex justify-center items-center gap-2 py-8">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}"
+                   class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">← Previous</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                <a href="?page={{ num }}&{{ request.GET.urlencode }}"
+                   class="px-4 py-2 rounded-lg {% if page_obj.number == num %}bg-teal-600 text-white{% else %}border text-gray-600 hover:bg-gray-50{% endif %}">
+                    {{ num }}
+                </a>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}"
+                   class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">Next →</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</div>
+
+ <!-- Scripts moved to base.html -->
+
+{% endblock %}

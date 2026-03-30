@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Nepal Health Bridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-bg: #002b5b;
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --secondary-color: #2e8b57;
+            --bg-light: #f4f7f6;
+            --text-dark: #2c3e50;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            min-width: 280px;
+            max-width: 280px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header .icon-bg {
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 10px;
+        }
+
+        .sidebar-header h4 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        ul.components {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-grow: 1;
+        }
+
+        #sidebar ul li a {
+            padding: 15px 30px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        #sidebar ul li a:hover,
+        #sidebar ul li.active>a {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #fff;
+        }
+
+        #sidebar ul li.logout-item a {
+            color: #ff6b6b;
+        }
+
+        #sidebar ul li.logout-item a:hover {
+            background: rgba(255, 107, 107, 0.1);
+            border-left: 4px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        /* Content */
+        #content {
+            width: calc(100% - 280px);
+            margin-left: 280px;
+            padding: 40px;
+        }
+
+        .top-navbar {
+            background: #fff;
+            padding: 15px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Profile Avatar */
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .profile-header-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 86, 179, 0.2);
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-header-info h3 {
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .profile-header-info p {
+            opacity: 0.85;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f2f5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form */
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 6px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.15);
+        }
+
+        textarea.form-control {
+            resize: none;
+        }
+
+        /* Save Button */
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 35px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover {
+            background-color: var(--primary-hover);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 86, 179, 0.3);
+        }
+
+        /* Alert */
+        .alert {
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        /* Snackbar */
+        #snackbar {
+            visibility: hidden;
+            min-width: 320px;
+            background-color: #343a40;
+            color: #fff;
+            border-radius: 8px;
+            padding: 16px 20px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        #snackbar i,
+        #snackbar span {
+            z-index: 2;
+            position: relative;
+        }
+
+        #snackbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: var(--secondary-color);
+            width: 0;
+            z-index: 1;
+        }
+
+        #snackbar.show {
+            visibility: visible;
+            animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        #snackbar.show::before {
+            animation: fillBg 1.2s linear forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                top: -50px;
+                opacity: 0;
+            }
+
+            to {
+                top: 30px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes fillBg {
+            0% {
+                width: 0;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #sidebar {
+                margin-left: -280px;
+            }
+
+            #sidebar.active {
+                margin-left: 0;
+            }
+
+            #content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            #content.active {
+                margin-left: 280px;
+            }
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <div class="icon-bg">
+                    <i class="fa-solid fa-user-injured"></i>
+                </div>
+                <h4>Nepal Health Bridge</h4>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a href="{% url 'patient_dashboard' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="/patient/select-hospital/"><i class="fa-regular fa-hospital"></i> Book My Appointment</a>
+                </li>
+                <li>
+                    <a href="{% url 'patient_my_appointments' %}"><i class="fa-regular fa-calendar-check"></i> My
+                        Appointments</a>
+                </li>
+                <li>
+                    <a href="{% url 'patient_medical_history' %}"><i class="fa-solid fa-notes-medical"></i> Medical
+                        History</a>
+                </li>
+                <li class="active">
+                    <a href="{% url 'patient_profile' %}"><i class="fa-regular fa-id-badge"></i> Profile</a>
+                </li>
+            </ul>
+
+            <ul class="list-unstyled">
+                <li class="logout-item">
+                    <a href="#" onclick="handleLogout(event)">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+
+            <!-- Top Navbar -->
+            <div class="top-navbar">
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" id="sidebarCollapse" class="btn btn-light d-md-none">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <h5 class="mb-0 fw-bold text-muted">My Profile</h5>
+                </div>
+                <a href="{% url 'patient_profile' %}" class="user-profile d-flex align-items-center gap-2 text-decoration-none text-dark" style="cursor: pointer;">
+                    <span class="fw-semibold">{{ patient.full_name }}</span>
+                    <img src="https://ui-avatars.com/api/?name={{ patient.full_name|urlencode }}&background=0056b3&color=fff"
+                         alt="User" class="rounded-circle" width="40">
+                </a>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show mb-4"
+                role="alert">
+                <i
+                    class="fa-solid fa-{% if message.tags == 'error' %}circle-xmark{% else %}circle-check{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <!-- Profile Header -->
+            <div class="profile-header-card">
+                <div class="profile-avatar">
+                    {{ patient.full_name|first|upper }}
+                </div>
+                <div class="profile-header-info">
+                    <h3>{{ patient.full_name }}</h3>
+                    <p><i class="fa-solid fa-envelope me-2"></i>{{ patient.email }}</p>
+                    <p><i class="fa-solid fa-phone me-2"></i>{{ patient.primary_phone }}</p>
+                </div>
+            </div>
+
+            <!-- Edit Form -->
+            <form method="POST" action="{% url 'patient_profile' %}">
+                {% csrf_token %}
+
+                <!-- ✅ Section 1: Personal Info -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fa-solid fa-user text-primary"></i> Personal Information
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" value="{{ patient.full_name }}"
+                                required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control" name="date_of_birth"
+                                value="{{ patient.date_of_birth|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" name="gender">
+                                <option value="male" {% if patient.gender == 'male' %}selected{% endif %}>Male</option>
+                                <option value="female" {% if patient.gender == 'female' %}selected{% endif %}>Female
+                                </option>
+                                <option value="other" {% if patient.gender == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Blood Group</label>
+                            <select class="form-select" name="blood_group">
+                                <option value="A+" {% if patient.blood_group == "A+" %}selected{% endif %}>A+</option>
+                                <option value="A-" {% if patient.blood_group == "A-" %}selected{% endif %}>A-</option>
+                                <option value="B+" {% if patient.blood_group == "B+" %}selected{% endif %}>B+</option>
+                                <option value="B-" {% if patient.blood_group == "B-" %}selected{% endif %}>B-</option>
+                                <option value="AB+" {% if patient.blood_group == "AB+" %}selected{% endif %}>AB+</option>
+                                <option value="AB-" {% if patient.blood_group == "AB-" %}selected{% endif %}>AB-</option>
+                                <option value="O+" {% if patient.blood_group == "O+" %}selected{% endif %}>O+</option>
+                                <option value="O-" {% if patient.blood_group == "O-" %}selected{% endif %}>O-</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ Section 2: Contact Info -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fa-solid fa-phone text-primary"></i> Contact Information
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" name="email" value="{{ patient.email }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Primary Phone</label>
+                            <input type="text" class="form-control" name="primary_phone"
+                                value="{{ patient.primary_phone }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Alternate Phone</label>
+                            <input type="text" class="form-control" name="alternate_phone"
+                                value="{{ patient.alternate_phone|default:'' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ Section 3: Address -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fa-solid fa-location-dot text-primary"></i> Address
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Country</label>
+                            <input type="text" class="form-control" name="country"
+                                value="{{ patient.country|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Province</label>
+                            <input type="text" class="form-control" name="province"
+                                value="{{ patient.province|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">District</label>
+                            <input type="text" class="form-control" name="district"
+                                value="{{ patient.district|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" name="city" value="{{ patient.city|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ward Number</label>
+                            <input type="text" class="form-control" name="ward_number"
+                                value="{{ patient.ward_number|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Postal Code</label>
+                            <input type="text" class="form-control" name="postal_code"
+                                value="{{ patient.postal_code|default:'' }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Full Address</label>
+                            <textarea class="form-control" name="full_address"
+                                rows="2">{{ patient.full_address|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ Section 4: Medical Info -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <i class="fa-solid fa-notes-medical text-primary"></i> Medical Information
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>
+                                Known Allergies</label>
+                            <textarea class="form-control" name="known_allergies" rows="3"
+                                placeholder="e.g. Penicillin, Peanuts...">{{ patient.known_allergies|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="fa-solid fa-heart-pulse text-danger me-1"></i> Chronic
+                                Conditions</label>
+                            <textarea class="form-control" name="chronic_conditions" rows="3"
+                                placeholder="e.g. Diabetes, Hypertension...">{{ patient.chronic_conditions|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="fa-solid fa-pills text-success me-1"></i> Current
+                                Medications</label>
+                            <textarea class="form-control" name="current_medications" rows="3"
+                                placeholder="List current medications...">{{ patient.current_medications|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><i class="fa-solid fa-scalpel text-secondary me-1"></i> Past
+                                Surgeries</label>
+                            <textarea class="form-control" name="past_surgeries" rows="3"
+                                placeholder="List any past surgeries...">{{ patient.past_surgeries|default:'' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ Section 5: Security & Password -->
+                <div class="section-card border-danger border-start border-4">
+                    <div class="section-title text-danger">
+                        <i class="fa-solid fa-shield-halved"></i> Security & Password
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <p class="text-muted small mb-3">If you'd like to update your password, enter a new one
+                                below. Otherwise, leave it blank to keep your current password.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">New Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" name="new_password"
+                                    id="patient_new_password" placeholder="Enter new password">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePatientPassword">
+                                    <i class="fa-regular fa-eye" id="togglePatientIcon"></i>
+                                </button>
+                            </div>
+                            <script>
+                                document.getElementById('togglePatientPassword').addEventListener('click', function (e) {
+                                    const passwordInput = document.getElementById('patient_new_password');
+                                    const icon = document.getElementById('togglePatientIcon');
+
+                                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                                    passwordInput.setAttribute('type', type);
+
+                                    icon.classList.toggle('fa-eye');
+                                    icon.classList.toggle('fa-eye-slash');
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn-save">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Save Changes
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div id="snackbar"><i class="fa-solid fa-circle-check"></i> <span>Logout Successful!</span></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('sidebarCollapse')?.addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('content').classList.toggle('active');
+        });
+
+        function handleLogout(e) {
+            e.preventDefault();
+            document.getElementById("snackbar").className = "show";
+            setTimeout(function () {
+                window.location.href = "{% url 'patient_logout' %}";
+            }, 1200);
+        }
+
+        // Auto dismiss alerts
+        setTimeout(function () {
+            document.querySelectorAll('.alert').forEach(function (a) { new bootstrap.Alert(a).close(); });
+        }, 4000);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Admin Registration - Nepal Health Bridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #1c2833;
+            --primary-hover: #2c3e50;
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(rgba(240, 244, 248, 0.9), rgba(240, 244, 248, 0.9)),
+                url('https://images.unsplash.com/photo-1551076805-e1869033e561?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        .register-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 35px 30px 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .register-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: white;
+            clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .avatar-circle {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 12px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .register-title {
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .register-body {
+            padding: 30px 40px 40px;
+        }
+
+        .form-floating>label {
+            color: #6c757d;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            padding: 1rem 0.75rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(28, 40, 51, 0.2);
+        }
+
+        .btn-register {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-register:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(28, 40, 51, 0.3);
+            color: white;
+        }
+
+        .btn-back {
+            text-align: center;
+            display: block;
+            margin-top: 20px;
+            color: #6c757d;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .btn-back:hover {
+            color: var(--primary-color);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+    <div class="container d-flex justify-content-center">
+        <div class="register-card">
+
+            <!-- Header -->
+            <div class="register-header">
+                <div class="avatar-circle">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h2 class="register-title">Register Admin Account</h2>
+            </div>
+
+            <!-- Form Body -->
+            <div class="register-body">
+
+                <!-- Django error/success messages -->
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} d-flex align-items-center mb-3" role="alert">
+                    <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% else %}fa-circle-xmark{% endif %} me-2"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <form method="POST" action="{% url 'admin_register' %}">
+                    {% csrf_token %}
+
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="fullName" name="full_name" placeholder="Full Name" required>
+                        <label for="fullName"><i class="fa-solid fa-user me-2"></i>Full Name</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+                        <label for="email"><i class="fa-solid fa-envelope me-2"></i>Email (Optional)</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                        <label for="username"><i class="fa-regular fa-id-badge me-2"></i>Admin Username</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="hospitalSelect" name="hospital_id" required>
+                            <option value="" selected disabled>-- Select Hospital --</option>
+                            {% for hospital in hospitals %}
+                            <option value="{{ hospital.id }}">{{ hospital.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="hospitalSelect"><i class="fa-solid fa-hospital me-2"></i>Hospital</label>
+                    </div>
+
+                    <div class="mb-3 position-relative">
+                        <div class="input-group">
+                            <div class="form-floating flex-grow-1">
+                                <input type="password" class="form-control border-end-0"
+                                    style="border-top-right-radius: 0; border-bottom-right-radius: 0;"
+                                    id="regPassword" name="password" placeholder="Password" required>
+                                <label for="regPassword"><i class="fa-solid fa-lock me-2"></i>Password</label>
+                            </div>
+                            <button class="btn btn-outline-secondary bg-white border-start-0" type="button"
+                                style="border-color: #dee2e6; border-top-right-radius: 10px; border-bottom-right-radius: 10px;"
+                                id="toggleRegPassword">
+                                <i class="fa-regular fa-eye" id="toggleRegIcon"></i>
+                            </button>
+                        </div>
+                        <script>
+                            document.getElementById('toggleRegPassword').addEventListener('click', function (e) {
+                                const passwordInput = document.getElementById('regPassword');
+                                const icon = document.getElementById('toggleRegIcon');
+                                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                                passwordInput.setAttribute('type', type);
+                                icon.classList.toggle('fa-eye');
+                                icon.classList.toggle('fa-eye-slash');
+                            });
+                        </script>
+                    </div>
+
+                    <button type="submit" class="btn btn-register">
+                        Create Account <i class="fa-solid fa-user-shield ms-2"></i>
+                    </button>
+
+                    <a href="{% url 'admin_login' %}" class="btn-back">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Already have an account? Login
+                    </a>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

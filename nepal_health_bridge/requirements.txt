@@ -1,0 +1,9 @@
+Django
+django-cors-headers
+djangorestframework
+djangorestframework_simplejwt
+gunicorn
+numpy
+pillow
+requests
+scikit-learn

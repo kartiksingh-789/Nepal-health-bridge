@@ -1,0 +1,125 @@
+<!-- Notification Dropdown -->
+<div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-3 bg-teal-600">
+        <h4 class="text-white font-semibold">Notifications</h4>
+        <span id="mark-all-read" class="text-teal-200 text-xs cursor-pointer hover:text-white">Mark all as read</span>
+    </div>
+    <div id="notif-list" class="divide-y divide-gray-100 max-h-72 overflow-y-auto">
+        <div class="px-4 py-6 text-center text-gray-400 text-sm">
+            <i class="fas fa-spinner fa-spin mr-2"></i>Loading...
+        </div>
+    </div>
+    <div class="px-4 py-3 text-center border-t">
+        <a href="{% url 'orders' %}" class="text-teal-600 text-sm font-semibold hover:underline">View All Orders</a>
+    </div>
+</div>
+
+<!-- Notification Script -->
+<script>
+async function loadNotifBadge() {
+    try {
+        const res    = await fetch('/notifications/');
+        const data   = await res.json();
+        const unread = (data.notifications || []).filter(n => !n.is_read).length;
+        const badge  = document.getElementById('notif-badge');
+        if (unread > 0) {
+            badge.textContent = unread > 9 ? '9+' : unread;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    } catch(e) {}
+}
+
+async function loadNotifications() {
+    const list = document.getElementById('notif-list');
+    list.innerHTML = `
+        <div class="px-4 py-6 text-center text-gray-400 text-sm">
+            <i class="fas fa-spinner fa-spin mr-2"></i>Loading...
+        </div>`;
+    try {
+        const res    = await fetch('/notifications/');
+        const data   = await res.json();
+        const notifs = data.notifications || [];
+
+        if (notifs.length === 0) {
+            list.innerHTML = `
+                <div class="px-4 py-8 text-center text-gray-400 text-sm">
+                    <i class="fas fa-bell-slash text-3xl block mb-2 opacity-40"></i>
+                    No notifications yet
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = notifs.map(n => {
+            let iconCls, bgCls, textCls;
+            const t = n.title.toLowerCase();
+            if (t.includes('order') || t.includes('confirmed')) {
+                iconCls = 'fa-box';          bgCls = 'bg-teal-100';   textCls = 'text-teal-600';
+            } else if (t.includes('payment') || t.includes('paid')) {
+                iconCls = 'fa-rupee-sign';   bgCls = 'bg-green-100';  textCls = 'text-green-600';
+            } else if (t.includes('cancel')) {
+                iconCls = 'fa-times-circle'; bgCls = 'bg-red-100';    textCls = 'text-red-500';
+            } else if (t.includes('ship') || t.includes('deliver')) {
+                iconCls = 'fa-truck';        bgCls = 'bg-blue-100';   textCls = 'text-blue-600';
+            } else if (t.includes('offer') || t.includes('promo')) {
+                iconCls = 'fa-tag';          bgCls = 'bg-yellow-100'; textCls = 'text-yellow-600';
+            } else {
+                iconCls = 'fa-bell';         bgCls = 'bg-gray-100';   textCls = 'text-gray-500';
+            }
+
+            const rowBg = n.is_read ? '' : 'bg-teal-50';
+            const dot   = n.is_read ? '' : '<span class="w-2 h-2 bg-teal-500 rounded-full flex-shrink-0 mt-1.5"></span>';
+
+            return `
+            <div class="flex items-start gap-3 px-4 py-3 ${rowBg} hover:bg-gray-50 transition cursor-default">
+                <div class="${bgCls} rounded-full w-9 h-9 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i class="fas ${iconCls} text-sm ${textCls}"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-2">
+                        <p class="text-sm font-semibold text-gray-800 leading-snug">${n.title}</p>
+                        ${dot}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">${n.message}</p>
+                    ${n.created_at ? `<p class="text-xs text-gray-400 mt-1"><i class="fas fa-clock mr-1 opacity-60"></i>${n.created_at}</p>` : ''}
+                </div>
+            </div>`;
+        }).join('');
+
+    } catch(e) {
+        list.innerHTML = `
+            <div class="px-4 py-6 text-center text-gray-400 text-sm">
+                <i class="fas fa-exclamation-circle mr-2 text-red-400"></i>Could not load notifications.
+            </div>`;
+    }
+}
+
+document.getElementById('notif-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const nd       = document.getElementById('notif-dropdown');
+    const ud       = document.getElementById('user-dropdown');
+    const isHidden = nd.classList.contains('hidden');
+    nd.classList.toggle('hidden');
+    if (ud) ud.classList.add('hidden');
+    if (isHidden) loadNotifications();
+});
+
+document.getElementById('mark-all-read').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    try {
+        await fetch('/notifications/read/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        document.getElementById('notif-badge').classList.add('hidden');
+        document.querySelectorAll('#notif-list .bg-teal-50')
+            .forEach(el => el.classList.remove('bg-teal-50'));
+        showToast('All notifications marked as read.');
+    } catch(e) {
+        showToast('Could not mark as read.', 'error');
+    }
+});
+
+loadNotifBadge();
+</script>

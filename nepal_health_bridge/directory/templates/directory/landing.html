@@ -1,0 +1,555 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepal Health Bridge - Welcome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0A2540;
+            --secondary: #00D09C;
+            --accent: #6366F1;
+            --pharmacy: #14B8A6;
+            --text-main: #1E293B;
+            --text-light: #64748B;
+            --bg-light: #F8FAFC;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Modern Navbar */
+        .navbar-custom {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 5%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand i { color: var(--secondary); font-size: 1.8rem; }
+
+        .nav-links { display: flex; align-items: center; gap: 32px; }
+        .nav-link { color: #5c6c84; text-decoration: none; font-weight: 500; font-size: 1.05rem; font-family: 'Plus Jakarta Sans', sans-serif; transition: color 0.2s ease; }
+        .nav-link:hover { color: var(--primary); }
+
+        /* Pharmacy nav link pill */
+        .nav-link-pharmacy {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--pharmacy);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: rgba(20, 184, 166, 0.08);
+            border: 1.5px solid rgba(20, 184, 166, 0.25);
+            padding: 7px 16px;
+            border-radius: 50px;
+            transition: all 0.2s ease;
+        }
+        .nav-link-pharmacy:hover {
+            background: var(--pharmacy);
+            color: white;
+            border-color: var(--pharmacy);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(20, 184, 166, 0.25);
+        }
+
+        .nav-btn.btn-primary { background: #004d9b; color: white; padding: 10px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 1.05rem; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease; display: inline-flex; align-items: center; justify-content: center; }
+        .nav-btn.btn-primary:hover { background: #003b7a; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 77, 155, 0.2); }
+
+        @media (max-width: 800px) { .nav-links { display: none; } }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 160px 5% 100px;
+            background: var(--primary);
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -10%; right: -5%;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(0,208,156,0.15) 0%, rgba(10,37,64,0) 70%);
+            border-radius: 50%; z-index: 1;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -20%; left: -10%;
+            width: 800px; height: 800px;
+            background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(10,37,64,0) 70%);
+            border-radius: 50%; z-index: 1;
+        }
+
+        .hero-bg-img {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') center/cover;
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative; z-index: 2;
+            width: 100%; max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 60px;
+        }
+
+        .hero-text {
+            flex: 1; max-width: 600px;
+            color: white;
+            animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; transform: translateY(40px);
+        }
+
+        .pill-badge {
+            display: inline-flex; align-items: center;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            font-size: 0.875rem; font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 24px;
+            backdrop-filter: blur(4px);
+        }
+        .pill-badge i { margin-right: 8px; }
+
+        .hero-title { font-size: 4rem; font-weight: 800; line-height: 1.1; margin-bottom: 24px; letter-spacing: -1.5px; }
+        .hero-title span { color: var(--secondary); position: relative; display: inline-block; }
+        .hero-subtitle { font-size: 1.25rem; color: rgba(255,255,255,0.85); line-height: 1.6; margin-bottom: 40px; font-weight: 400; }
+
+        .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); }
+        .stat-item h4 { font-size: 2rem; font-weight: 800; margin-bottom: 4px; color: white; }
+        .stat-item p { margin: 0; font-size: 0.85rem; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+
+        .hero-card-wrapper { flex: 1; max-width: 500px; perspective: 1000px; }
+
+        .hero-card {
+            background: white; border-radius: 24px; padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            animation: floatIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+            opacity: 0; transform: translateY(40px) rotateX(10deg);
+            position: relative;
+        }
+
+        .card-header-text { text-align: center; margin-bottom: 32px; }
+        .card-header-text h3 { font-weight: 800; color: var(--primary); font-size: 1.8rem; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .card-header-text p { color: var(--text-light); font-size: 1rem; margin: 0; }
+
+        .portal-option {
+            display: flex; align-items: center;
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid #E2E8F0;
+            margin-bottom: 14px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--bg-light);
+        }
+        .portal-option:hover { border-color: var(--secondary); background: white; transform: translateY(-4px); box-shadow: 0 12px 24px -8px rgba(0, 208, 156, 0.25); }
+
+        .portal-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 18px; flex-shrink: 0; transition: all 0.3s ease; }
+
+        .patient-option .portal-icon { background: rgba(99, 102, 241, 0.1); color: var(--accent); }
+        .portal-option:hover.patient-option .portal-icon { background: var(--accent); color: white; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3); }
+
+        .hospital-option .portal-icon { background: rgba(0, 208, 156, 0.1); color: var(--secondary); }
+        .portal-option:hover.hospital-option .portal-icon { background: var(--secondary); color: white; box-shadow: 0 8px 16px rgba(0, 208, 156, 0.3); }
+
+        /* Pharmacy portal option */
+        .pharmacy-option .portal-icon { background: rgba(20, 184, 166, 0.1); color: var(--pharmacy); }
+        .portal-option:hover.pharmacy-option .portal-icon { background: var(--pharmacy); color: white; box-shadow: 0 8px 16px rgba(20, 184, 166, 0.3); }
+        .portal-option:hover.pharmacy-option { border-color: var(--pharmacy); box-shadow: 0 12px 24px -8px rgba(20, 184, 166, 0.25); }
+
+        .portal-text h4 { color: var(--primary); font-weight: 800; font-size: 1.15rem; margin-bottom: 4px; }
+        .portal-text p { color: var(--text-light); margin: 0; font-size: 0.9rem; line-height: 1.4; }
+
+        .portal-arrow { margin-left: auto; color: #CBD5E1; font-size: 1.1rem; transition: all 0.3s ease; }
+        .portal-option:hover .portal-arrow { color: var(--text-main); transform: translateX(6px); }
+
+        /* Pharmacy badge on portal card */
+        .pharmacy-badge {
+            position: absolute;
+            top: -8px; right: -8px;
+            background: var(--pharmacy);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .avatar-group-container { display: flex; align-items: center; justify-content: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid #E2E8F0; }
+        .avatar-group { display: flex; }
+        .avatar-group img { width: 42px; height: 42px; border-radius: 50%; border: 3px solid white; margin-left: -12px; object-fit: cover; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: transform 0.2s ease; }
+        .avatar-group img:first-child { margin-left: 0; }
+        .avatar-group img:hover { transform: translateY(-4px); z-index: 10; }
+        .avatar-text { display: flex; flex-direction: column; justify-content: center; margin-left: 16px; text-align: left; }
+        .avatar-text strong { color: var(--primary); font-weight: 800; font-size: 1rem; }
+        .avatar-text span { color: var(--text-light); font-size: 0.82rem; font-weight: 600; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes floatIn { from { opacity: 0; transform: translateY(40px) rotateX(10deg); } to { opacity: 1; transform: translateY(0) rotateX(0deg); } }
+
+        @media (max-width: 1024px) {
+            .hero-content { flex-direction: column; text-align: center; gap: 50px; }
+            .hero-text { margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+            .hero-title { font-size: 3.5rem; }
+            .hero-card { padding: 32px; }
+        }
+        @media (max-width: 600px) {
+            .hero-title { font-size: 2.8rem; }
+            .hero-stats { grid-template-columns: 1fr; gap: 20px; }
+            .portal-option { padding: 14px; }
+            .portal-icon { width: 46px; height: 46px; font-size: 1.2rem; }
+            .avatar-group-container { flex-direction: column; gap: 16px; text-align: center; }
+            .avatar-text { margin-left: 0; }
+        }
+
+        /* Services Section */
+        .services-section { padding: 120px 5%; background-color: white; text-align: center; }
+        .services-header { max-width: 900px; margin: 0 auto 80px; }
+        .services-label { color: var(--secondary); font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 16px; }
+        .services-title { color: var(--primary); font-size: 3.2rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -1px; }
+        .services-subtitle { color: var(--text-light); font-size: 1.2rem; line-height: 1.7; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 40px; max-width: 1500px; margin: 0 auto; text-align: left; }
+        .service-card { background: var(--bg-light); border-radius: 24px; padding: 50px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .service-card:hover { transform: translateY(-10px); box-shadow: 0 25px 50px rgba(0,0,0,0.08); }
+        .service-icon { width: 64px; height: 64px; border-radius: 16px; background: rgba(0,208,156,0.15); color: var(--secondary); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 28px; }
+        .service-card h4 { color: var(--primary); font-weight: 800; font-size: 1.4rem; margin-bottom: 16px; letter-spacing: -0.5px; }
+        .service-card p { color: var(--text-light); font-size: 1.05rem; line-height: 1.6; margin: 0; }
+
+        /* Contact Section */
+        .contact-section-wrapper { background-color: var(--bg-light); width: 100%; border-top: 1px solid #e2e8f0; }
+        .contact-section { padding: 120px 5%; max-width: 1500px; margin: 0 auto; }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+        .contact-info-list { display: flex; flex-direction: column; gap: 24px; }
+        .info-card { display: flex; align-items: flex-start; gap: 24px; background: white; padding: 35px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .info-icon { width: 52px; height: 52px; border-radius: 12px; background: #0b5c87; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+        .info-content h5 { font-size: 0.9rem; font-weight: 800; color: #328b9d; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px; }
+        .info-content p { font-size: 1.05rem; color: var(--primary); margin: 0; line-height: 1.6; font-weight: 500; }
+        .social-links { margin-top: 20px; }
+        .social-links h5 { font-size: 0.9rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; margin-bottom: 18px; letter-spacing: 1.5px; }
+        .social-icons-wrapper { display: flex; gap: 16px; }
+        .social-icon { width: 48px; height: 48px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; color: var(--text-light); text-decoration: none; transition: 0.2s; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .social-icon:hover { background: #0b5c87; color: white; transform: translateY(-4px); }
+        .contact-form-card { background: white; padding: 50px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; }
+        .contact-form-card h3 { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px; letter-spacing: -0.5px; }
+        .contact-form-card p { font-size: 1.05rem; color: var(--text-light); margin-bottom: 40px; }
+        .form-group-contact { margin-bottom: 24px; }
+        .form-group-contact label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+        .form-control-contact { width: 100%; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px 20px; font-size: 1rem; transition: all 0.2s; background: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .form-control-contact:focus { outline: none; border-color: var(--secondary); background: white; box-shadow: 0 0 0 4px rgba(0,208,156,0.1); }
+        .form-row-contact { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        textarea.form-control-contact { min-height: 150px; resize: vertical; }
+        .btn-submit-contact { width: 100%; padding: 18px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 10px 20px rgba(0,208,156,0.2); }
+        .btn-submit-contact:hover { background: #00b386; transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0,208,156,0.3); }
+        @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } .form-row-contact { grid-template-columns: 1fr; } }
+
+        /* Footer */
+        .site-footer { background-color: var(--primary); color: #94a3b8; padding: 24px 5%; display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .footer-left { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+        .footer-left i { font-size: 0.9rem; }
+        .footer-right { display: flex; align-items: center; gap: 32px; }
+        .footer-link { color: #cbd5e1; text-decoration: none; transition: color 0.2s ease; font-weight: 400; }
+        .footer-link:hover { color: white; }
+        .footer-logo { width: 36px; height: 36px; border-radius: 50%; background-color: rgba(225,29,72,0.2); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: #f43f5e; font-size: 1rem; margin-left: 10px; }
+        @media (max-width: 768px) { .site-footer { flex-direction: column-reverse; gap: 20px; text-align: center; } }
+    </style>
+</head>
+<body>
+
+    <!-- ── Navbar ─────────────────────────────────────────────────── -->
+    <nav class="navbar-custom">
+        <a href="/" class="brand">
+            <i class="fa-solid fa-notes-medical"></i> Nepal Health Bridge
+        </a>
+        <div class="nav-links">
+            <a href="#services" class="nav-link">Our Services</a>
+            <a href="#contact"  class="nav-link">Contact Us</a>
+
+            <!-- 🆕 Pharmacy Link -->
+            <a href="/pharmacy/" class="nav-link-pharmacy">
+                <i class="fa-solid fa-capsules"></i> HealthMeds Pharmacy
+            </a>
+
+            <a href="{% url 'patient_login' %}" class="nav-btn btn-primary">Patient Login</a>
+        </div>
+    </nav>
+
+    <!-- ── Hero Section ───────────────────────────────────────────── -->
+    <section class="hero">
+        <div class="hero-bg-img"></div>
+        <div class="hero-content">
+
+            <!-- Left / Text -->
+            <div class="hero-text">
+                <div class="pill-badge">
+                    <i class="fa-solid fa-bolt"></i> Next-Gen Telehealth
+                </div>
+                <h1 class="hero-title">Connecting Care Across <span>Nepal</span></h1>
+                <p class="hero-subtitle">Experience a new era of completely accessible, robust, and unified digital healthcare. Bridge the gap between world-class medical providers and patients for a healthier tomorrow.</p>
+                <div class="hero-stats">
+                    <div class="stat-item"><h4>1,000+</h4><p>Specialists</p></div>
+                    <div class="stat-item"><h4>50+</h4><p>Hosp. Partners</p></div>
+                    <div class="stat-item"><h4>24/7</h4><p>Availability</p></div>
+                </div>
+            </div>
+
+            <!-- Right / Floating Card -->
+            <div class="hero-card-wrapper">
+                <div class="hero-card">
+                    <div class="card-header-text">
+                        <h3>Get Started</h3>
+                        <p>Choose your portal to proceed securely</p>
+                    </div>
+
+                    <!-- Patient Portal -->
+                    <a href="{% url 'patient_login' %}" class="portal-option patient-option">
+                        <div class="portal-icon">
+                            <i class="fa-solid fa-user-injured"></i>
+                        </div>
+                        <div class="portal-text">
+                            <h4>Patient Portal</h4>
+                            <p>Book appointments & view health history</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right portal-arrow"></i>
+                    </a>
+
+                    <!-- Hospital Portal -->
+                    <a href="{% url 'hospital_login' %}" class="portal-option hospital-option">
+                        <div class="portal-icon">
+                            <i class="fa-solid fa-hospital"></i>
+                        </div>
+                        <div class="portal-text">
+                            <h4>Hospital Portal</h4>
+                            <p>Manage doctors, departments & staff</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right portal-arrow"></i>
+                    </a>
+
+                    <!-- 🆕 Pharmacy Portal -->
+                    <a href="/pharmacy/" class="portal-option pharmacy-option" style="position:relative;">
+                        <span class="pharmacy-badge">New</span>
+                        <div class="portal-icon">
+                            <i class="fa-solid fa-capsules"></i>
+                        </div>
+                        <div class="portal-text">
+                            <h4>HealthMeds Pharmacy</h4>
+                            <p>Order medicines & healthcare products</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right portal-arrow"></i>
+                    </a>
+
+                    <!-- Social Proof -->
+                    <div class="avatar-group-container">
+                        <div class="avatar-group">
+                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=100&q=80" alt="Doctor 1">
+                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=100&q=80" alt="Doctor 2">
+                            <img src="https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=100&q=80" alt="Doctor 3">
+                            <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=100&q=80" alt="Doctor 4">
+                        </div>
+                        <div class="avatar-text">
+                            <strong>Trusted Network</strong>
+                            <span>Join 10k+ active users</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ── Services Section ───────────────────────────────────────── -->
+    <section id="services" class="services-section">
+        <div class="services-header">
+            <div class="services-label">What We Offer</div>
+            <h2 class="services-title">Our Services</h2>
+            <p class="services-subtitle">Comprehensive digital healthcare services designed to make quality medical care accessible to every Nepali citizen.</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <h4>Easy Appointment Booking</h4>
+                <p>Book appointments with top doctors across Nepal in just a few clicks — by hospital, department, or symptoms.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-brain"></i></div>
+                <h4>AI Symptom Checker</h4>
+                <p>Describe your symptoms and our ML model will instantly suggest the right specialist doctor for you.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-file-prescription"></i></div>
+                <h4>Digital Prescriptions</h4>
+                <p>Doctors issue digital prescriptions directly — accessible anytime from your secure patient dashboard.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-notes-medical"></i></div>
+                <h4>Complete Medical History</h4>
+                <p>All your past appointments, prescriptions and diagnoses stored securely and accessible at any time.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-capsules"></i></div>
+                <h4>Online Pharmacy</h4>
+                <p>Order medicines and healthcare products online with eSewa & Khalti payment — delivered to your door.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h4>Secure & Private</h4>
+                <p>Your medical data is fully encrypted and protected — only you and your authorized doctors can access it.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Contact Section ────────────────────────────────────────── -->
+    <div id="contact" class="contact-section-wrapper">
+        <section class="contact-section">
+            <div class="services-header">
+                <div class="services-label">Get in Touch</div>
+                <h2 class="services-title">Contact Us</h2>
+                <p class="services-subtitle">Have questions or need support? Our team is here to help you 24/7.</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info-list">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+                        <div class="info-content">
+                            <h5>Our Address</h5>
+                            <p>Nepal Health Bridge Pvt. Ltd.<br>Tripureshwor, Ward No. 13<br>Kathmandu, Bagmati Province, Nepal</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+                        <div class="info-content">
+                            <h5>Phone Numbers</h5>
+                            <p>+977 01-4258963 (Main Office)<br>+977 984-1234567 (Patient Support)<br>+977 986-7654321 (Hospital Support)</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="info-content">
+                            <h5>Email Addresses</h5>
+                            <p>info@nepalhealthbridge.com.np<br>support@nepalhealthbridge.com.np<br>hospitals@nepalhealthbridge.com.np</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fa-solid fa-clock"></i></div>
+                        <div class="info-content">
+                            <h5>Working Hours</h5>
+                            <p>Sunday – Friday: 9:00 AM – 6:00 PM<br>Saturday: 10:00 AM – 3:00 PM<br>Emergency Support: 24/7</p>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <h5>Follow Us</h5>
+                        <div class="social-icons-wrapper">
+                            <a href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-twitter"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="#" class="social-icon"><i class="fa-brands fa-youtube"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form-card">
+                    <h3>Send Us a Message</h3>
+                    <p>Fill in the form below and we'll get back to you within 24 hours.</p>
+                    <form action="#" method="POST" onsubmit="event.preventDefault(); alert('Message sent successfully!');">
+                        <div class="form-row-contact">
+                            <div class="form-group-contact">
+                                <label>First Name</label>
+                                <input type="text" class="form-control-contact" placeholder="Ram">
+                            </div>
+                            <div class="form-group-contact">
+                                <label>Last Name</label>
+                                <input type="text" class="form-control-contact" placeholder="Sharma">
+                            </div>
+                        </div>
+                        <div class="form-group-contact">
+                            <label>Email Address</label>
+                            <input type="email" class="form-control-contact" placeholder="ram.sharma@email.com">
+                        </div>
+                        <div class="form-group-contact">
+                            <label>Phone Number</label>
+                            <input type="text" class="form-control-contact" placeholder="+977 98XXXXXXXX">
+                        </div>
+                        <div class="form-group-contact">
+                            <label>Subject</label>
+                            <select class="form-control-contact">
+                                <option value="">Select a subject</option>
+                                <option value="general">General Inquiry</option>
+                                <option value="support">Technical Support</option>
+                                <option value="hospital">Hospital Onboarding</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group-contact">
+                            <label>Message</label>
+                            <textarea class="form-control-contact" placeholder="Write your message here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit-contact">
+                            <i class="fa-solid fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ── Footer ─────────────────────────────────────────────────── -->
+    <footer class="site-footer">
+        <div class="footer-left">
+            <i class="fa-regular fa-copyright"></i> 2026 Nepal Health Bridge Pvt. Ltd. All rights reserved.
+        </div>
+        <div class="footer-right">
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#contact" class="footer-link">Contact</a>
+            <div class="footer-logo"><i class="fa-solid fa-stethoscope"></i></div>
+        </div>
+    </footer>
+
+</body>
+</html>

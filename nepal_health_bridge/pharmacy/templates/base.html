@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HealthMeds - Your Online Pharmacy{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary':       '#14B8A6',
+                        'primary-light': '#CCFBF1',
+                        'primary-dark':  '#0F766E',
+                        'success':       '#10B981',
+                        'warning':       '#F59E0B',
+                        'error':         '#EF4444',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hover-scale { transition: transform 0.2s; }
+        .hover-scale:hover { transform: scale(1.02); }
+        .cart-item-removing { opacity: 0; transform: translateX(20px); transition: all 0.2s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- ───────────────────────────── NAVBAR ───────────────────────────── -->
+    <nav class="bg-teal-600 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+
+                <!-- Logo + Nav Links -->
+                <div class="flex items-center space-x-8">
+                    <a href="{% url 'index' %}" class="flex items-center space-x-2">
+                        <div class="bg-white rounded-lg p-2">
+                            <i class="fas fa-capsules text-teal-600 text-2xl"></i>
+                        </div>
+                        <span class="text-white font-bold text-xl hidden md:block">HealthMeds</span>
+                    </a>
+                    <div class="hidden md:flex items-center space-x-6">
+                        <a href="{% url 'index' %}"    class="text-white hover:text-teal-100 font-medium transition">Home</a>
+                        <a href="{% url 'products' %}" class="text-white hover:text-teal-100 font-medium transition">Products</a>
+
+                        <!-- Dashboard — hidden by default, shown only for admins via JS -->
+                        <a id="nav-dashboard" href="{% url 'admin_dashboard' %}"
+                           class="text-white hover:text-teal-100 font-medium transition hidden">
+                            <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-md mx-4 hidden lg:block">
+                    <div class="relative">
+                        <input type="text" id="navbar-search"
+                               placeholder="Search medicines, health products..."
+                               class="w-full px-4 py-2 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-300"
+                               onkeydown="if(event.key==='Enter') doSearch()">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400 cursor-pointer" onclick="doSearch()"></i>
+                    </div>
+                </div>
+
+                <!-- Right Side Icons -->
+                <div class="flex items-center space-x-4">
+
+                    <!-- Notifications -->
+                    <div class="relative" id="notif-wrapper">
+                        <button id="notif-btn" class="relative text-white hover:text-teal-100 transition">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notif-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        </button>
+                        {% include 'notifications.html' %}
+                    </div>
+
+                    <!-- Cart Button -->
+                    <button id="cart-btn" class="relative text-white hover:text-teal-100 transition">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="relative" id="user-menu-wrapper">
+
+                        <!-- NOT logged in -->
+                        <div id="nav-login">
+                            <a href="{% url 'login' %}" class="flex items-center space-x-2 bg-white text-teal-600 px-4 py-2 rounded-lg font-semibold hover:bg-teal-50 transition text-sm">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span class="hidden md:block">Login</span>
+                            </a>
+                        </div>
+
+                        <!-- Logged in -->
+                        <div id="nav-user" class="hidden">
+                            <button id="user-menu-btn" class="flex items-center space-x-2 bg-teal-700 hover:bg-teal-800 px-3 py-2 rounded-lg transition">
+                                <img src="https://ui-avatars.com/api/?name=U&background=0ea5e9&color=fff"
+                                     id="nav-avatar" alt="User" class="w-8 h-8 rounded-full">
+                                <span id="nav-username" class="text-white font-medium hidden md:block text-sm"></span>
+                                <i class="fas fa-chevron-down text-white text-xs ml-1"></i>
+                            </button>
+
+                            <!-- User Dropdown -->
+                            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 overflow-hidden">
+                                <div class="bg-teal-600 px-4 py-3">
+                                    <p id="dropdown-name"   class="text-white font-semibold text-sm"></p>
+                                    <p id="dropdown-mobile" class="text-teal-200 text-xs mt-0.5"></p>
+                                </div>
+                                <div class="py-1">
+                                    <a href="{% url 'profile' %}"  class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 transition"><i class="fas fa-user text-teal-500 w-4"></i> My Profile</a>
+                                    <a href="{% url 'orders' %}"   class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 transition"><i class="fas fa-box text-teal-500 w-4"></i> My Orders</a>
+                                    <a href="{% url 'wishlist' %}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 transition"><i class="fas fa-heart text-teal-500 w-4"></i> Wishlist</a>
+                                    <a href="{% url 'settings' %}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 transition"><i class="fas fa-cog text-teal-500 w-4"></i> Settings</a>
+
+                                    <!-- Admin Panel link — hidden by default, shown for admins via JS -->
+                                    <div id="admin-link" class="hidden">
+                                        <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-teal-50 transition">
+                                            <i class="fas fa-tachometer-alt text-teal-500 w-4"></i> Admin Panel
+                                        </a>
+                                    </div>
+
+                                    <div class="border-t my-1"></div>
+                                    <a href="#" onclick="logoutUser()" class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                                        <i class="fas fa-sign-out-alt text-red-500 w-4"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ─────────────────── PRESCRIPTION UPLOAD MODAL ─────────────────── -->
+    <div id="prescription-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="bg-teal-600 px-6 py-4 flex items-center justify-between">
+                <h3 class="text-white font-bold text-lg"><i class="fas fa-file-medical mr-2"></i>Upload Prescription</h3>
+                <button id="close-prescription-modal" class="text-white hover:text-teal-200">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-600 text-sm mb-6">Please upload a valid prescription from a registered doctor. Accepted formats: JPG, PNG, PDF.</p>
+                <label for="prescription-file" class="block cursor-pointer">
+                    <div id="upload-area" class="border-2 border-dashed border-teal-400 rounded-lg p-8 text-center hover:bg-teal-50 transition">
+                        <i class="fas fa-cloud-upload-alt text-teal-500 text-4xl mb-3"></i>
+                        <p class="text-gray-700 font-semibold mb-1">Click to upload or drag & drop</p>
+                        <p class="text-gray-400 text-xs">JPG, PNG, PDF up to 10MB</p>
+                    </div>
+                    <input type="file" id="prescription-file" accept=".jpg,.jpeg,.png,.pdf" class="hidden">
+                </label>
+                <div id="file-preview" class="hidden mt-4 flex items-center gap-3 bg-teal-50 rounded-lg px-4 py-3">
+                    <i class="fas fa-file-alt text-teal-500 text-2xl"></i>
+                    <div class="flex-1 min-w-0">
+                        <p id="file-name" class="text-sm font-semibold text-gray-800 truncate"></p>
+                        <p id="file-size" class="text-xs text-gray-500"></p>
+                    </div>
+                    <button id="remove-file" class="text-red-400 hover:text-red-600">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                </div>
+                <div class="mt-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Additional Notes (optional)</label>
+                    <textarea id="prescription-notes" rows="2" placeholder="E.g. specific medicine brand preference..."
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"></textarea>
+                </div>
+            </div>
+            <div class="px-6 pb-6 flex gap-3">
+                <button id="cancel-prescription" class="flex-1 border border-gray-300 text-gray-600 py-2 rounded-lg font-semibold hover:bg-gray-50 transition">Cancel</button>
+                <button id="submit-prescription" class="flex-1 bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition">
+                    <i class="fas fa-upload mr-2"></i>Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ───────────────────────── MAIN CONTENT ─────────────────────────── -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ───────────────────────────── FOOTER ───────────────────────────── -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">HealthMeds</h3>
+                    <p class="text-gray-400 text-sm">Your trusted online pharmacy for quality medicines and healthcare products.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Categories</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white">Medicines</a></li>
+                        <li><a href="#" class="hover:text-white">Healthcare</a></li>
+                        <li><a href="#" class="hover:text-white">Wellness</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contact</h4>
+                    <p class="text-sm text-gray-400">Email: support@healthmeds.com</p>
+                    <p class="text-sm text-gray-400">Phone: +977 9800000000</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ─────────────────────────── CART DRAWER ────────────────────────── -->
+    <div id="cart-backdrop" class="fixed inset-0 bg-black bg-opacity-40 z-40 hidden" onclick="closeCartDrawer()"></div>
+
+    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b bg-teal-600 flex-shrink-0">
+            <h3 class="text-lg font-bold text-white">
+                <i class="fas fa-shopping-cart mr-2"></i>Shopping Cart
+                <span id="drawer-count" class="text-sm font-normal ml-1 opacity-80">(0 items)</span>
+            </h3>
+            <button onclick="closeCartDrawer()" class="text-white hover:text-teal-200 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-4">
+            <div id="cart-loading" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-teal-500 text-3xl"></i>
+                <p class="text-gray-400 text-sm mt-3">Loading your cart...</p>
+            </div>
+        </div>
+
+        <div id="cart-empty" class="hidden flex-col items-center justify-center p-8 text-center">
+            <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-shopping-cart text-gray-300 text-4xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-500 text-lg mb-2">Your cart is empty</h4>
+            <p class="text-gray-400 text-sm mb-5">Add some products to get started</p>
+            <a href="{% url 'products' %}" onclick="closeCartDrawer()"
+               class="bg-teal-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
+                <i class="fas fa-shopping-bag mr-2"></i>Shop Now
+            </a>
+        </div>
+
+        <div id="cart-footer" class="hidden border-t bg-white p-4 flex-shrink-0">
+            <div id="delivery-nudge" class="hidden mb-3 text-xs text-center bg-teal-50 text-teal-700 rounded-lg py-2 px-3">
+                <i class="fas fa-truck mr-1"></i><span id="nudge-text"></span>
+            </div>
+            <div class="space-y-1 mb-4">
+                <div class="flex justify-between text-sm text-gray-500">
+                    <span>Subtotal</span><span id="cart-subtotal">₹0</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500">
+                    <span>Delivery</span><span id="cart-delivery" class="text-green-600">Free</span>
+                </div>
+                <div class="flex justify-between font-bold text-gray-800 text-base pt-1 border-t">
+                    <span>Total</span><span id="cart-total" class="text-teal-600 text-lg">₹0</span>
+                </div>
+            </div>
+            <a href="{% url 'checkout' %}"
+               class="flex items-center justify-center gap-2 w-full bg-teal-600 text-white py-3 rounded-xl font-bold hover:bg-teal-700 transition text-sm">
+                <i class="fas fa-lock"></i> Proceed to Checkout
+            </a>
+            <button onclick="clearCart()"
+                    class="mt-2 w-full border border-red-200 text-red-500 py-2 rounded-xl text-sm font-semibold hover:bg-red-50 transition">
+                <i class="fas fa-trash mr-1"></i>Clear Cart
+            </button>
+        </div>
+    </div>
+
+    <!-- Global Toast -->
+    <div id="global-toast" class="fixed bottom-6 right-6 z-50 hidden">
+        <div class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium max-w-xs" id="global-toast-inner">
+            <i id="global-toast-icon" class="fas fa-check-circle text-lg"></i>
+            <span id="global-toast-msg"></span>
+        </div>
+    </div>
+
+    <!-- ───────────────────────────── SCRIPTS ──────────────────────────── -->
+    <script>
+
+    // ════════════════════════════════════════════════
+    // UTILITIES
+    // ════════════════════════════════════════════════
+
+    function getCookie(name) {
+        let value = null;
+        document.cookie.split(';').forEach(c => {
+            c = c.trim();
+            if (c.startsWith(name + '=')) value = decodeURIComponent(c.slice(name.length + 1));
+        });
+        return value;
+    }
+
+    function showToast(message, type = 'success') {
+        const colors = { success: 'bg-teal-600', error: 'bg-red-500', warning: 'bg-yellow-500' };
+        const icons  = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle' };
+        document.getElementById('global-toast-inner').className =
+            `flex items-center gap-3 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium max-w-xs ${colors[type] || colors.success}`;
+        document.getElementById('global-toast-icon').className  = `fas ${icons[type] || icons.success} text-lg`;
+        document.getElementById('global-toast-msg').textContent = message;
+        document.getElementById('global-toast').classList.remove('hidden');
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => document.getElementById('global-toast').classList.add('hidden'), 3500);
+    }
+
+    function doSearch() {
+        const q = document.getElementById('navbar-search').value.trim();
+        if (q) window.location.href = `/products/?search=${encodeURIComponent(q)}`;
+    }
+
+    // ════════════════════════════════════════════════
+    // LOGIN STATE
+    // ════════════════════════════════════════════════
+
+    function checkLoginState() {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const mobile     = localStorage.getItem('userMobile');
+        const firstName  = localStorage.getItem('userFirstName') || '';
+        const lastName   = localStorage.getItem('userLastName')  || '';
+        const isAdmin    = localStorage.getItem('isAdmin') === 'true';
+        const navLogin   = document.getElementById('nav-login');
+        const navUser    = document.getElementById('nav-user');
+
+        if (isLoggedIn === 'true' && mobile) {
+            if (navLogin) navLogin.classList.add('hidden');
+            if (navUser)  navUser.classList.remove('hidden');
+
+            // Build initials: "Raj Kumar" → "RK"
+            const initials    = [firstName, lastName].filter(Boolean).map(n => n[0].toUpperCase()).join('');
+            const displayName = [firstName, lastName].filter(Boolean).join(' ') || mobile;
+            const avatarName  = initials || mobile[0].toUpperCase();
+
+            const g = id => document.getElementById(id);
+            if (g('nav-username'))    g('nav-username').textContent    = initials || mobile.slice(-4);
+            if (g('dropdown-name'))   g('dropdown-name').textContent   = displayName;
+            if (g('dropdown-mobile')) g('dropdown-mobile').textContent = mobile;
+            if (g('nav-avatar'))      g('nav-avatar').src =
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarName)}&background=0d9488&color=fff&bold=true&size=64`;
+
+            // ── Show admin-only links ──────────────────────────────────
+            if (isAdmin) {
+                // Navbar Dashboard link
+                const navDash = document.getElementById('nav-dashboard');
+                if (navDash) navDash.classList.remove('hidden');
+
+                // Dropdown Admin Panel link
+                const adminLink = document.getElementById('admin-link');
+                if (adminLink) adminLink.classList.remove('hidden');
+            }
+
+            // Cart + notification badges
+            loadCartBadge();
+            if (typeof loadNotifBadge === 'function') loadNotifBadge();
+
+        } else {
+            if (navLogin) navLogin.classList.remove('hidden');
+            if (navUser)  navUser.classList.add('hidden');
+        }
+    }
+
+    checkLoginState();
+
+    function logoutUser() {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userMobile');
+        localStorage.removeItem('userFirstName');
+        localStorage.removeItem('userLastName');
+        localStorage.removeItem('isAdmin');       // ← clear admin flag on logout
+        window.location.href = "{% url 'logout' %}";
+    }
+
+    // ════════════════════════════════════════════════
+    // DROPDOWN MANAGEMENT
+    // ════════════════════════════════════════════════
+
+    function closeAllDropdowns() {
+        ['notif-dropdown', 'user-dropdown'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+    }
+
+    // Stop clicks inside dropdowns bubbling to document
+    ['notif-dropdown', 'user-dropdown'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', e => e.stopPropagation());
+    });
+
+    // User menu — event delegation on wrapper
+    document.getElementById('user-menu-wrapper').addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!e.target.closest('#user-menu-btn')) return;
+        const ud       = document.getElementById('user-dropdown');
+        const isHidden = ud.classList.contains('hidden');
+        closeAllDropdowns();
+        if (isHidden) ud.classList.remove('hidden');
+    });
+
+    document.addEventListener('click', closeAllDropdowns);
+
+    // ════════════════════════════════════════════════
+    // CART BADGE
+    // ════════════════════════════════════════════════
+
+    async function loadCartBadge() {
+        try {
+            const res  = await fetch('/pharmacy/cart/data/');
+            const data = await res.json();
+            updateCartBadge(data.item_count || 0);
+        } catch(e) {}
+    }
+
+    function updateCartBadge(count) {
+        const badge = document.getElementById('cart-badge');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+
+    // ════════════════════════════════════════════════
+    // CART DRAWER
+    // ════════════════════════════════════════════════
+
+    document.getElementById('cart-btn').addEventListener('click', openCartDrawer);
+
+    function openCartDrawer() {
+        document.getElementById('cart-drawer').classList.remove('translate-x-full');
+        document.getElementById('cart-backdrop').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        closeAllDropdowns();
+        loadCart();
+    }
+
+    function closeCartDrawer() {
+        document.getElementById('cart-drawer').classList.add('translate-x-full');
+        document.getElementById('cart-backdrop').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    async function loadCart() {
+        const container = document.getElementById('cart-items-container');
+        container.innerHTML = `
+            <div class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-teal-500 text-3xl"></i>
+                <p class="text-gray-400 text-sm mt-3">Loading your cart...</p>
+            </div>`;
+        document.getElementById('cart-empty').classList.add('hidden');
+        document.getElementById('cart-footer').classList.add('hidden');
+
+        try {
+            const res  = await fetch('/pharmacy/cart/data/');
+            const data = await res.json();
+            renderCart(data);
+        } catch(err) {
+            document.getElementById('cart-items-container').innerHTML =
+                '<p class="text-red-400 text-sm text-center py-8"><i class="fas fa-exclamation-circle mr-2"></i>Failed to load cart.</p>';
+        }
+    }
+
+    function renderCart(data) {
+        const container   = document.getElementById('cart-items-container');
+        const empty       = document.getElementById('cart-empty');
+        const footer      = document.getElementById('cart-footer');
+        const drawerCount = document.getElementById('drawer-count');
+
+        updateCartBadge(data.item_count || 0);
+        if (drawerCount) drawerCount.textContent = `(${data.item_count || 0} item${data.item_count !== 1 ? 's' : ''})`;
+
+        if (!data.items || data.items.length === 0) {
+            container.innerHTML = '';
+            empty.classList.remove('hidden');
+            empty.classList.add('flex');
+            footer.classList.add('hidden');
+            return;
+        }
+
+        empty.classList.add('hidden');
+        empty.classList.remove('flex');
+        footer.classList.remove('hidden');
+
+        const total = parseFloat(data.total) || 0;
+        const nudge  = document.getElementById('delivery-nudge');
+        const nudgeT = document.getElementById('nudge-text');
+        if (total < 500) {
+            nudge.classList.remove('hidden');
+            nudgeT.textContent = `Add ₹${(500 - total).toFixed(0)} more for free delivery!`;
+        } else {
+            nudge.classList.add('hidden');
+        }
+
+        document.getElementById('cart-subtotal').textContent = '₹' + total.toFixed(2);
+        document.getElementById('cart-delivery').textContent = total >= 500 ? 'Free' : '₹50';
+        document.getElementById('cart-delivery').className   = `text-sm ${total >= 500 ? 'text-green-600' : 'text-gray-500'}`;
+        document.getElementById('cart-total').textContent    = '₹' + (total >= 500 ? total : total + 50).toFixed(2);
+
+        container.innerHTML = data.items.map(item => `
+            <div class="flex items-start gap-3 py-3 border-b last:border-0 transition-all" id="cart-item-${item.id}">
+                <img src="${item.image}" onerror="this.src='https://via.placeholder.com/64'"
+                     class="w-16 h-16 object-cover rounded-lg flex-shrink-0 border">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-semibold text-sm text-gray-800 leading-tight line-clamp-2">${item.name}</h4>
+                    <p class="text-xs text-gray-400 mt-0.5">₹${item.price.toFixed(2)} each</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <button onclick="updateCartQty(${item.id}, ${item.quantity - 1})"
+                                class="w-7 h-7 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-600 font-bold transition text-sm">−</button>
+                        <span class="text-sm font-bold text-gray-800 w-6 text-center" id="qty-${item.id}">${item.quantity}</span>
+                        <button onclick="updateCartQty(${item.id}, ${item.quantity + 1})"
+                                ${item.quantity >= item.stock ? 'disabled' : ''}
+                                class="w-7 h-7 border ${item.quantity >= item.stock ? 'border-gray-200 text-gray-300 cursor-not-allowed' : 'border-gray-300 text-gray-600 hover:bg-gray-100'} rounded-lg flex items-center justify-center font-bold transition text-sm">+</button>
+                        ${item.quantity >= item.stock ? '<span class="text-xs text-orange-500 ml-1">Max</span>' : ''}
+                    </div>
+                </div>
+                <div class="text-right flex-shrink-0 flex flex-col items-end gap-2">
+                    <span class="font-bold text-sm text-teal-700" id="sub-${item.id}">₹${item.subtotal.toFixed(2)}</span>
+                    <button onclick="removeCartItem(${item.id})"
+                            class="text-red-400 hover:text-red-600 transition p-1 rounded hover:bg-red-50" title="Remove">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function updateCartQty(itemId, newQty) {
+        if (newQty < 1) { removeCartItem(itemId); return; }
+        try {
+            const res  = await fetch(`/pharmacy/cart/update/${itemId}/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ quantity: newQty })
+            });
+            const data = await res.json();
+            if (data.status === 'updated') {
+                const qEl = document.getElementById(`qty-${itemId}`);
+                const sEl = document.getElementById(`sub-${itemId}`);
+                if (qEl) qEl.textContent = data.quantity;
+                if (sEl) sEl.textContent = '₹' + data.subtotal.toFixed(2);
+                const total = parseFloat(data.cart_total) || 0;
+                document.getElementById('cart-subtotal').textContent = '₹' + total.toFixed(2);
+                document.getElementById('cart-delivery').textContent = total >= 500 ? 'Free' : '₹50';
+                document.getElementById('cart-total').textContent    = '₹' + (total >= 500 ? total : total + 50).toFixed(2);
+                updateCartBadge(data.item_count);
+                const nudge = document.getElementById('delivery-nudge');
+                if (total < 500) {
+                    nudge.classList.remove('hidden');
+                    document.getElementById('nudge-text').textContent = `Add ₹${(500 - total).toFixed(0)} more for free delivery!`;
+                } else {
+                    nudge.classList.add('hidden');
+                }
+            } else if (data.status === 'removed') {
+                loadCart();
+            }
+        } catch(err) { showToast('Could not update quantity.', 'error'); }
+    }
+
+    async function removeCartItem(itemId) {
+        const el = document.getElementById(`cart-item-${itemId}`);
+        if (el) { el.style.opacity = '0'; el.style.transform = 'translateX(20px)'; el.style.transition = 'all 0.2s'; }
+        setTimeout(async () => {
+            try {
+                const res  = await fetch(`/pharmacy/cart/remove/${itemId}/`, {
+                    method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                const data = await res.json();
+                if (data.status === 'removed') { loadCart(); showToast('Item removed from cart.'); }
+            } catch(err) {
+                showToast('Could not remove item.', 'error');
+                if (el) { el.style.opacity = ''; el.style.transform = ''; }
+            }
+        }, 200);
+    }
+
+    async function clearCart() {
+        if (!confirm('Remove all items from your cart?')) return;
+        try {
+            const res  = await fetch('/pharmacy/cart/clear/', { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') } });
+            const data = await res.json();
+            if (data.status === 'cleared') { loadCart(); showToast('Cart cleared.'); }
+        } catch(err) { showToast('Could not clear cart.', 'error'); }
+    }
+
+    // ════════════════════════════════════════════════
+    // PRESCRIPTION MODAL
+    // ════════════════════════════════════════════════
+
+    function openPrescriptionModal() {
+        document.getElementById('prescription-modal').classList.remove('hidden');
+        document.getElementById('prescription-modal').classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePrescriptionModalFn() {
+        document.getElementById('prescription-modal').classList.add('hidden');
+        document.getElementById('prescription-modal').classList.remove('flex');
+        document.body.style.overflow = '';
+        document.getElementById('prescription-file').value = '';
+        document.getElementById('file-preview').classList.add('hidden');
+        document.getElementById('prescription-notes').value = '';
+    }
+
+    document.getElementById('close-prescription-modal').addEventListener('click', closePrescriptionModalFn);
+    document.getElementById('cancel-prescription').addEventListener('click', closePrescriptionModalFn);
+    document.getElementById('prescription-modal').addEventListener('click', function(e) {
+        if (e.target === this) closePrescriptionModalFn();
+    });
+
+    document.getElementById('prescription-file').addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+            document.getElementById('file-preview').classList.remove('hidden');
+        }
+    });
+
+    document.getElementById('remove-file').addEventListener('click', () => {
+        document.getElementById('prescription-file').value = '';
+        document.getElementById('file-preview').classList.add('hidden');
+    });
+
+    document.getElementById('submit-prescription').addEventListener('click', async () => {
+        const file = document.getElementById('prescription-file').files[0];
+        if (!file) { showToast('Please select a file first.', 'error'); return; }
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('notes', document.getElementById('prescription-notes').value);
+        try {
+            const res  = await fetch('/pharmacy/prescription/upload/', {
+                method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') }, body: formData
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                showToast('Prescription uploaded! Our pharmacist will review it shortly.');
+                closePrescriptionModalFn();
+            } else {
+                showToast(data.message || 'Upload failed.', 'error');
+            }
+        } catch(e) { showToast('Upload failed. Please try again.', 'error'); }
+    });
+
+    // ════════════════════════════════════════════════
+    // GLOBAL ACTIONS (CART & WISHLIST)
+    // ════════════════════════════════════════════════
+
+    async function addToCart(productId, productName, qty = 1) {
+        try {
+            const res  = await fetch(`/pharmacy/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: { 
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ quantity: qty })
+            });
+            const data = await res.json();
+
+            if (data.status === 'success') {
+                showToast(`${productName} added to cart!`);
+                updateCartBadge(data.cart_count);
+            } else if (data.status === 'login_required' || data.status === 'error') {
+                showToast('Please login to add items.', 'warning');
+                setTimeout(() => window.location.href = '/pharmacy/login/', 1500);
+            }
+        } catch(e) { showToast('Could not add to cart.', 'error'); }
+    }
+
+    async function toggleWishlist(productId, btnEl) {
+        try {
+            const res  = await fetch(`/pharmacy/wishlist/toggle/${productId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            });
+            const data = await res.json();
+
+            if (data.status === 'added') {
+                showToast('Added to wishlist!');
+                if (btnEl) btnEl.classList.add('text-red-500');
+            } else if (data.status === 'removed') {
+                showToast('Removed from wishlist.');
+                if (btnEl) btnEl.classList.remove('text-red-500');
+            } else if (data.status === 'login_required') {
+                showToast('Please login to use wishlist.', 'warning');
+                setTimeout(() => window.location.href = '/pharmacy/login/', 1500);
+            }
+        } catch(e) { showToast('Could not update wishlist.', 'error'); }
+    }
+    </script>
+</body>
+</html>

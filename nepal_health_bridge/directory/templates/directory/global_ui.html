@@ -1,0 +1,184 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #0A2540 !important;
+    --primary-hover: #0F335E !important;
+    --secondary-color: #00D09C !important;
+    --sidebar-bg: #0A2540 !important;
+    --bg-light: #F8FAFC !important;
+    --text-dark: #1E293B !important;
+    --text-muted: #64748B !important;
+    --bs-primary: #0A2540 !important;
+    --bs-success: #00D09C !important;
+    --bs-info: #6366F1 !important;
+    --bs-body-font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+body, html {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background-color: var(--bg-light) !important;
+    color: var(--text-dark) !important;
+}
+
+/* Typography Overrides */
+h1, h2, h3, h4, h5, h6 { font-weight: 700 !important; letter-spacing: -0.5px !important; }
+
+/* Base structural overrides */
+.btn {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    padding: 10px 24px !important;
+}
+
+.btn-primary, .btn-primary:active {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover) !important;
+    box-shadow: 0 8px 16px rgba(10,37,64,0.2) !important;
+    transform: translateY(-2px);
+}
+
+.btn-success, .btn-success:active {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+    color: white !important;
+}
+.btn-success:hover {
+    background-color: #00B386 !important;
+    box-shadow: 0 8px 16px rgba(0,208,156,0.3) !important;
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    border-color: var(--primary-color) !important;
+    color: var(--primary-color) !important;
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+
+.card, .login-card, .stat-card, .dashboard-wrapper .card {
+    border-radius: 20px !important;
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0,0,0,0.02) !important;
+    background: white !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Avoid hovering cards popping out too much accidentally unless intended */
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.12) !important;
+}
+
+.form-control, .form-select {
+    border-radius: 12px !important;
+    border: 1px solid #E2E8F0 !important;
+    background-color: #F8FAFC !important;
+}
+.form-control:not(.form-floating .form-control), .form-select:not(.form-floating .form-select) {
+    padding: 0.75rem 1rem;
+}
+.form-control:focus, .form-select:focus {
+    background-color: white !important;
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 0 4px rgba(0, 208, 156, 0.1) !important;
+}
+
+/* Fix floating labels specific UI where padding was broken */
+.form-floating > label {
+    padding: 1rem 1rem;
+    color: var(--text-muted);
+}
+.form-floating > .form-control, .form-floating > .form-select {
+    padding-top: 1.625rem !important;
+    padding-bottom: 0.625rem !important;
+}
+
+
+/* Dashboard Sidebars */
+#sidebar {
+    background: var(--primary-color) !important;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.1) !important;
+}
+#sidebar ul li a {
+    font-weight: 500 !important;
+    color: rgba(255,255,255,0.7) !important;
+}
+#sidebar ul li a:hover, #sidebar ul li.active>a {
+    background: rgba(255,255,255,0.1) !important;
+    color: var(--secondary-color) !important;
+    border-left: 4px solid var(--secondary-color) !important;
+}
+
+/* General Navbar (Top) */
+.navbar {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+/* Only apply this explicitly if navbar contains a brand class */
+.navbar-brand, .navbar .navbar-brand {
+    color: var(--primary-color) !important;
+    font-weight: 800 !important;
+    font-size: 1.5rem !important;
+}
+.navbar-brand i { color: var(--secondary-color) !important; }
+
+/* Handle Dark Navbar overrides */
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-success { background-color: var(--secondary-color) !important; }
+.bg-info { background-color: #EEF2FF !important; color: #4338CA !important; }
+
+/* If a navbar specifies navbar-dark, make text light, but if white make it dark.
+   Since we made all navbars white previously, we must ensure links are visible */
+.navbar-dark .navbar-nav .nav-link, .navbar-light .navbar-nav .nav-link { 
+    color: var(--primary-color) !important; 
+    font-weight: 600 !important; 
+}
+.navbar-dark .navbar-nav .nav-link:hover, .navbar-light .navbar-nav .nav-link:hover { 
+    color: var(--secondary-color) !important; 
+}
+.navbar-toggler {
+    background-color: var(--primary-color) !important;
+}
+
+/* Overriding specific headers / sections */
+.login-header, .welcome-section, .hero, .header-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)) !important;
+    color: white !important;
+}
+.login-header h3, .login-header p {
+    color: white !important;
+}
+.login-header {
+    border-radius: 20px 20px 0 0 !important;
+}
+.icon-wrapper {
+    background-color: var(--secondary-color) !important;
+    box-shadow: 0 8px 16px rgba(0, 208, 156, 0.4) !important;
+    color: white !important;
+}
+.welcome-section h1 {
+    font-weight: 800 !important;
+}
+.top-navbar {
+    border-radius: 16px !important;
+}
+.table-hover tbody tr:hover {
+    background-color: #F8FAFC !important;
+}
+.table th { background-color: var(--primary-color) !important; color: white !important; border:none !important;}
+.bg-info.text-dark { color: #4338CA !important; }
+
+/* Fix specific link colors */
+a { color: var(--secondary-color); font-weight: 600; text-decoration: none; }
+a:hover { color: var(--primary-color); }
+</style>

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Registration - Nepal Health Bridge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --text-dark: #2c3e50;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(rgba(244, 247, 246, 0.9), rgba(244, 247, 246, 0.9)),
+                url('https://images.unsplash.com/photo-1516549655169-df83a0774514?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+            color: var(--text-dark);
+        }
+
+        .register-card {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .register-header {
+            background-color: rgba(0, 86, 179, 0.05);
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .icon-wrapper {
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3);
+        }
+
+        .progress-wrapper {
+            padding: 0 40px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background-color: var(--border-color);
+            overflow: visible;
+        }
+
+        .progress-bar {
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .steps-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: -16px;
+            position: relative;
+        }
+
+        .step-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #fff;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #6c757d;
+            z-index: 2;
+        }
+
+        .step-indicator.active {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.2);
+        }
+
+        .step-indicator.completed {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .step-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .step-labels span {
+            width: 80px;
+            text-align: center;
+        }
+
+        .step-labels .active {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .register-body {
+            padding: 30px 40px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.2);
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-prev {
+            background-color: #f8f9fa;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+        }
+
+        .btn-prev:hover {
+            background-color: #e2e6ea;
+            color: var(--text-dark);
+        }
+
+        .btn-next,
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-next:hover,
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3);
+            color: white;
+        }
+
+        .btn-submit {
+            background-color: var(--success-color);
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .alert {
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    {% include 'directory/global_ui.html' %}
+</head>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="register-card mx-auto">
+
+                    <!-- Header -->
+                    <div class="register-header">
+                        <div class="icon-wrapper">
+                            <i class="fa-solid fa-hospital-user"></i>
+                        </div>
+                        <h3>Patient Registration</h3>
+                        <p class="text-muted mb-0">Complete the form below to create your secure account</p>
+                        {% if request.session.reg_username or request.session.reg_email %}
+                        <div class="mt-2">
+                           <small><a href="{% url 'patient_register' %}?clear=true" class="text-danger text-decoration-none">
+                              <i class="fa-solid fa-trash-can me-1"></i>Not you? Start a fresh registration
+                           </a></small>
+                        </div>
+                        {% endif %}
+
+                        <!-- Progress Bar -->
+                        <div class="progress-wrapper">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar"
+                                    style="width: {% if step == 1 %}25{% elif step == 2 %}50{% elif step == 3 %}75{% else %}100{% endif %}%;">
+                                </div>
+                            </div>
+                            <div class="steps-nav">
+                                <div
+                                    class="step-indicator {% if step >= 1 %}{% if step > 1 %}completed{% else %}active{% endif %}{% endif %}">
+                                    {% if step > 1 %}<i class="fa-solid fa-check"></i>{% else %}1{% endif %}
+                                </div>
+                                <div
+                                    class="step-indicator {% if step >= 2 %}{% if step > 2 %}completed{% else %}active{% endif %}{% endif %}">
+                                    {% if step > 2 %}<i class="fa-solid fa-check"></i>{% else %}2{% endif %}
+                                </div>
+                                <div
+                                    class="step-indicator {% if step >= 3 %}{% if step > 3 %}completed{% else %}active{% endif %}{% endif %}">
+                                    {% if step > 3 %}<i class="fa-solid fa-check"></i>{% else %}3{% endif %}
+                                </div>
+                                <div class="step-indicator {% if step == 4 %}active{% endif %}">4</div>
+                            </div>
+                            <div class="step-labels">
+                                <span class="{% if step == 1 %}active{% endif %}">Account Info</span>
+                                                                <span class="{% if step == 2 %}active{% endif %}">Personal Info</span>
+
+                                <span class="{% if step == 3 %}active{% endif %}">Address Info</span>
+                                <span class="{% if step == 4 %}active{% endif %}">Medical Info</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="register-body">
+
+                        <!-- ✅ Django messages -->
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div
+                            class="alert alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show mb-3">
+                            <i
+                                class="fa-solid fa-{% if message.tags == 'error' %}circle-xmark{% else %}circle-check{% endif %} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+
+                        <!-- ✅ Single form that posts to patient_register with current step -->
+                        <form method="POST" action="{% url 'patient_register' %}" class="needs-validation" novalidate autocomplete="off">
+                            {% csrf_token %}
+                            <!-- ✅ Hidden step field tells the view which step we're on -->
+                            <input type="hidden" name="step" value="{{ step }}">
+
+                            <!-- ══════════════════════════════════
+                                 STEP 1: Account Info
+                            ══════════════════════════════════ -->
+                            {% if step == 1 %}
+                            <h5 class="mb-4" style="color: var(--primary-color);">Step 1: Basic Account Information</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-regular fa-user me-2"></i>Username</label>
+                                    <input type="text" class="form-control" name="username"
+                                        value="{{ request.session.reg_username|default:'' }}"
+                                        placeholder="Enter Username" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-regular fa-envelope me-2"></i>Email</label>
+                                    <input type="email" class="form-control" name="email"
+                                        value="{{ request.session.reg_email|default:'' }}" placeholder="Enter Email"
+                                        required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-lock me-2"></i>Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" name="password" id="reg_password"
+                                            placeholder="Enter Password" required>
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="toggleRegPassword('reg_password', 'toggleRegIcon')">
+                                            <i class="fa-regular fa-eye" id="toggleRegIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-lock me-2"></i>Confirm
+                                        Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" name="confirm_password"
+                                            id="reg_confirm" placeholder="Confirm Password" required>
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="toggleRegPassword('reg_confirm', 'toggleRegConfirmIcon')">
+                                            <i class="fa-regular fa-eye" id="toggleRegConfirmIcon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <script>
+                                    function toggleRegPassword(inputId, iconId) {
+                                        const input = document.getElementById(inputId);
+                                        const icon = document.getElementById(iconId);
+                                        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                                        input.setAttribute('type', type);
+                                        icon.classList.toggle('fa-eye');
+                                        icon.classList.toggle('fa-eye-slash');
+                                    }
+                                </script>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-phone me-2"></i>Primary
+                                        Phone</label>
+                                    <input type="tel" class="form-control" name="primary_phone"
+                                        value="{{ request.session.reg_primary_phone|default:'' }}"
+                                        placeholder="Enter Primary Phone" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-phone-slash me-2"></i>Alternate
+                                        Phone <span class="text-muted fw-normal">(Optional)</span></label>
+                                    <input type="tel" class="form-control" name="alternate_phone"
+                                        value="{{ request.session.reg_alternate_phone|default:'' }}"
+                                        placeholder="Enter Alt Phone">
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- ══════════════════════════════════
+                                 STEP 2: Personal Info
+                            ══════════════════════════════════ -->
+                            {% if step == 2 %}
+                            {% with g=reg_gender bg=reg_blood_group ms=reg_marital_status %}
+                            <h5 class="mb-4" style="color: var(--primary-color);">Step 2: Personal Information</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-regular fa-address-card me-2"></i>Full
+                                        Name</label>
+                                    <input type="text" class="form-control" name="full_name"
+                                        value="{{ request.session.reg_full_name|default:'' }}"
+                                        placeholder="Enter Full Name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-regular fa-calendar-days me-2"></i>Date of
+                                        Birth</label>
+                                    <input type="date" class="form-control" name="date_of_birth"
+                                        value="{{ request.session.reg_date_of_birth|default:'' }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-venus-mars me-2"></i>Gender</label>
+                                    <select class="form-select" name="gender" required>
+                                        <option value="" disabled {% if not request.session.reg_gender %}>selected{% endif %}>Select Gender</option>
+                                        <option value="M" {% if g == 'M' %}selected{% endif %}>Male</option>
+                                        <option value="F" {% if g == 'F' %}selected{% endif %}>Female</option>
+                                        <option value="O" {% if g == 'O' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-droplet me-2"
+                                            style="color:#dc3545;"></i>Blood Group</label>
+                                    <select class="form-select" name="blood_group" required>
+                                        <option value="" disabled {% if not request.session.reg_blood_group %}>selected{% endif %}>Select Blood Group</option>
+                                        <option value="A+" {% if bg == 'A+' %}selected{% endif %}>A+</option>
+                                        <option value="A-" {% if bg == 'A-' %}selected{% endif %}>A-</option>
+                                        <option value="B+" {% if bg == 'B+' %}selected{% endif %}>B+</option>
+                                        <option value="B-" {% if bg == 'B-' %}selected{% endif %}>B-</option>
+                                        <option value="O+" {% if bg == 'O+' %}selected{% endif %}>O+</option>
+                                        <option value="O-" {% if bg == 'O-' %}selected{% endif %}>O-</option>
+                                        <option value="AB+" {% if bg == 'AB+' %}selected{% endif %}>AB+</option>
+                                        <option value="AB-" {% if bg == 'AB-' %}selected{% endif %}>AB-</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-globe me-2"></i>Nationality</label>
+                                    <input type="text" class="form-control" name="nationality"
+                                        value="{{ request.session.reg_nationality|default:'' }}"
+                                        placeholder="Enter Nationality" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-ring me-2"></i>Marital
+                                        Status</label>
+                                    <select class="form-select" name="marital_status" required>
+                                        <option value="" disabled {% if not request.session.reg_marital_status %}selected{% endif %}>Select Status</option>
+                                        <option value="single" {% if ms == 'single' %}selected{% endif %}>Single</option>
+                                        <option value="married" {% if ms == 'married' %}selected{% endif %}>Married</option>
+
+                                        <option value="divorced" {% if ms == 'divorced' %}selected{% endif %}>Divorced</option>
+
+                                        <option value="widowed" {% if ms == 'widowed' %}selected{% endif %}>Widowed</option>
+
+                                    </select>
+                                </div>
+                            </div>
+                            {% endwith %}
+                            {% endif %}
+
+                            <!-- ══════════════════════════════════
+                                 STEP 3: Address Info
+                            ══════════════════════════════════ -->
+                            {% if step == 3 %}
+                            <h5 class="mb-4" style="color: var(--primary-color);">Step 3: Address Information</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-flag me-2"></i>Country</label>
+                                    <input type="text" class="form-control" name="country"
+                                        value="{{ request.session.reg_country|default:'Nepal' }}"
+                                        placeholder="Enter Country" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-map me-2"></i>Province</label>
+                                    <input type="text" class="form-control" name="province"
+                                        value="{{ request.session.reg_province|default:'' }}"
+                                        placeholder="Enter Province" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-map-pin me-2"></i>District</label>
+                                    <input type="text" class="form-control" name="district"
+                                        value="{{ request.session.reg_district|default:'' }}"
+                                        placeholder="Enter District" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-city me-2"></i>City</label>
+                                    <input type="text" class="form-control" name="city"
+                                        value="{{ request.session.reg_city|default:'' }}" placeholder="Enter City"
+                                        required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-hashtag me-2"></i>Ward
+                                        Number</label>
+                                    <input type="text" class="form-control" name="ward_number"
+                                        value="{{ request.session.reg_ward_number|default:'' }}"
+                                        placeholder="Enter Ward Number">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-signs-post me-2"></i>Postal
+                                        Code</label>
+                                    <input type="text" class="form-control" name="postal_code"
+                                        value="{{ request.session.reg_postal_code|default:'' }}"
+                                        placeholder="Enter Postal Code">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label"><i class="fa-solid fa-location-dot me-2"></i>Full
+                                        Address</label>
+                                    <textarea class="form-control" name="full_address" rows="2"
+                                        placeholder="Enter Full Address"
+                                        required>{{ request.session.reg_full_address|default:'' }}</textarea>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- ══════════════════════════════════
+                                 STEP 4: Medical Info
+                            ══════════════════════════════════ -->
+                            {% if step == 4 %}
+                            <h5 class="mb-4" style="color: var(--primary-color);">Step 4: Basic Medical Snapshot</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label"><i class="fa-solid fa-triangle-exclamation me-2"
+                                            style="color:#ffc107;"></i>Known Allergies</label>
+                                    <textarea class="form-control" name="known_allergies" rows="2"
+                                        placeholder="Enter Allergies">{{ request.session.reg_known_allergies|default:'' }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-notes-medical me-2"></i>Chronic
+                                        Conditions</label>
+                                    <input type="text" class="form-control" name="chronic_conditions"
+                                        value="{{ request.session.reg_chronic_conditions|default:'' }}"
+                                        placeholder="Enter Chronic Conditions">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><i class="fa-solid fa-pills me-2"></i>Current
+                                        Medications</label>
+                                    <input type="text" class="form-control" name="current_medications"
+                                        value="{{ request.session.reg_current_medications|default:'' }}"
+                                        placeholder="Enter Current Medications">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label"><i class="fa-solid fa-syringe me-2"></i>Past
+                                        Surgeries</label>
+                                    <input type="text" class="form-control" name="past_surgeries"
+                                        value="{{ request.session.reg_past_surgeries|default:'' }}"
+                                        placeholder="Enter Past Surgeries">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label"><i
+                                            class="fa-solid fa-wheelchair me-2"></i>Disability</label>
+                                    <div class="form-check form-switch fs-5">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                            id="disabilityToggle" name="has_disability" {% if reg_has_disability == 'on' %}checked{% endif %} onchange="toggleDisabilityDesc()">
+                                        <label class="form-check-label fs-6 pt-1" for="disabilityToggle">
+                                            Yes, I have a disability
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- ── Navigation Buttons ── -->
+                            <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+
+                                <!-- Back button — goes to previous step -->
+                                {% if step > 1 %}
+                                <a href="{% url 'patient_register' %}?step={{ step|add:'-1' }}"
+                                    class="btn btn-action btn-prev">
+                                    <i class="fa-solid fa-arrow-left me-2"></i>Back
+                                </a>
+                                {% else %}
+                                <div></div>
+                                {% endif %}
+
+                                <!-- Next / Submit button -->
+                                {% if step < 4 %} <button type="submit" class="btn btn-action btn-next ms-auto">
+                                    Next <i class="fa-solid fa-arrow-right ms-2"></i>
+                                    </button>
+                                    {% else %}
+                                    <button type="submit" class="btn btn-action btn-submit ms-auto">
+                                        <i class="fa-solid fa-user-check me-2"></i>Save & Register Account
+                                    </button>
+                                    {% endif %}
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleDisabilityDesc() {
+            const toggle = document.getElementById('disabilityToggle');
+            const box = document.getElementById('disabilityDescBox');
+            if (box) box.style.display = toggle.checked ? 'block' : 'none';
+        }
+
+        // Auto-dismiss alerts after 4 seconds
+        setTimeout(function () {
+            document.querySelectorAll('.alert').forEach(function (a) {
+                new bootstrap.Alert(a).close();
+            });
+        }, 4000);
+    </script>
+</body>
+
+</html>

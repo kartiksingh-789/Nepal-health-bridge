@@ -1,0 +1,15 @@
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+staticfiles/
+.env
+.venv
+env/
+venv/
+node_modules/
+.DS_Store
+*.log
+.agent/
+.agents/
+.gemini/
